@@ -12,10 +12,15 @@ import (
 )
 
 func main() {
-	err := godotenv.Load("/home/gonzalo/Documentos/Proyectos/ApiBackendDia/my-go-project/.env")
-	fmt.Println("API_URL:", os.Getenv("API_URL"))
+	err := godotenv.Load(".env")
 	if err != nil {
-		log.Println("⚠️ No se pudo cargar el archivo .env")
+		log.Printf("⚠️ No se pudo cargar el archivo .env: %v", err)
+	}
+
+	apiURL := os.Getenv("API_URL")
+	fmt.Println("API_URL:", apiURL)
+	if apiURL == "" {
+		log.Fatal("❌ API_URL no está configurada en el archivo .env")
 	}
 
 	router := gin.Default()
