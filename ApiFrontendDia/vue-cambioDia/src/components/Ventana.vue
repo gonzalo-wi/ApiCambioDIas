@@ -161,17 +161,27 @@ function diaNombre(letra: string) {
 const consultarPropuestas = async () => {
   if (!numeroCliente.value) {
     mensaje.value = 'Por favor ingresa un número de cliente.'
+    setTimeout(() => mensaje.value = '', 3000)
     return
   }
+  
+  // Limpiar resultados y selección anterior
+  propuestas.value = []
+  seleccionada.value = null
+  mensaje.value = ''
+  
   cargando.value = true
   try {
     const res = await axios.get(`http://192.168.0.250:3002/api/propuestas/${numeroCliente.value}`)
     propuestas.value = res.data
-    seleccionada.value = null
-    mensaje.value = ''
+    if (!res.data || res.data.length === 0) {
+      mensaje.value = 'No se encontraron fechas disponibles para este cliente.'
+      setTimeout(() => mensaje.value = '', 4000)
+    }
   } catch (err) {
     console.error(err)
     mensaje.value = 'No se pudieron obtener las propuestas.'
+    setTimeout(() => mensaje.value = '', 4000)
   } finally {
     cargando.value = false
   }
@@ -180,6 +190,7 @@ const consultarPropuestas = async () => {
 const confirmarSeleccion = async () => {
   if (!seleccionada.value) {
     mensaje.value = 'Selecciona una propuesta antes de confirmar.'
+    setTimeout(() => mensaje.value = '', 3000)
     return
   }
   cargando.value = true
@@ -190,13 +201,19 @@ const confirmarSeleccion = async () => {
       orden: seleccionada.value.ordenRuta,
     }
     await axios.post('http://192.168.0.250:3002/api/cambiar-visita', payload)
-    mensaje.value = 'Selección enviada correctamente.'
-    numeroCliente.value = ''
-    propuestas.value = []
-    seleccionada.value = null
+    mensaje.value = '✓ Cambio de día confirmado correctamente.'
+    
+    // Limpiar todo después de 2 segundos
+    setTimeout(() => {
+      mensaje.value = ''
+      numeroCliente.value = ''
+      propuestas.value = []
+      seleccionada.value = null
+    }, 2000)
   } catch (err) {
     console.error(err)
     mensaje.value = 'Error al confirmar la selección.'
+    setTimeout(() => mensaje.value = '', 4000)
   } finally {
     cargando.value = false
   }
