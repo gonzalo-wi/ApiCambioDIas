@@ -106,15 +106,15 @@ function abrirVentana() {
 }
 
 function irAdjuntos() {
-  router.push('/adjuntos')
+  router.push('/panel/adjuntos')
 }
 
 function irSiisa() {
-  router.push('/siisa')
+  router.push('/panel/siisa')
 }
 
 function irToken() {
-  router.push('/token')
+  router.push('/panel/token')
 }
 </script>
 

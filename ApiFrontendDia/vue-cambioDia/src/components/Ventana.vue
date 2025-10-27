@@ -333,16 +333,17 @@ const confirmarSeleccion = async () => {
 }
 
 .fecha-item:hover {
-  border-color: var(--blue-300);
-  background: var(--blue-50);
+  border-color: var(--green-300);
+  background: var(--green-50);
   transform: translateY(-1px);
   box-shadow: var(--shadow);
 }
 
 .fecha-item.selected {
-  border-color: var(--blue-500);
-  background: var(--blue-50);
-  box-shadow: var(--shadow-lg);
+  border: 3px solid #10b981;
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
+  transform: translateY(-1px);
 }
 
 .radio-input {
@@ -417,31 +418,34 @@ const confirmarSeleccion = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 1.5rem;
-  height: 1.5rem;
-  border: 2px solid var(--gray-300);
+  width: 2rem;
+  height: 2rem;
+  border: 3px solid var(--gray-300);
   border-radius: 50%;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   flex-shrink: 0;
   margin-top: 0.25rem;
 }
 
 .fecha-item.selected .radio-indicator {
-  border-color: var(--blue-500);
-  background: var(--blue-500);
+  border-color: #10b981;
+  background: #10b981;
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2);
 }
 
 .radio-dot {
-  width: 0.5rem;
-  height: 0.5rem;
+  width: 0.75rem;
+  height: 0.75rem;
   background: white;
   border-radius: 50%;
   opacity: 0;
-  transition: opacity 0.2s ease;
+  transform: scale(0);
+  transition: all 0.3s ease;
 }
 
 .fecha-item.selected .radio-dot {
   opacity: 1;
+  transform: scale(1);
 }
 
 .action-section {
@@ -449,6 +453,38 @@ const confirmarSeleccion = async () => {
   justify-content: center;
   padding-top: 1.5rem;
   border-top: 2px solid var(--gray-100);
+}
+
+.btn-success {
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%) !important;
+  color: white !important;
+  border: none !important;
+  padding: 0.875rem 2rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-success:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+  background: linear-gradient(135deg, #047857 0%, #059669 100%) !important;
+}
+
+.btn-success:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-success:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .empty-state {
