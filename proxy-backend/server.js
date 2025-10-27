@@ -50,11 +50,36 @@ app.post('/api/attachments', async (req, res) => {
 // Endpoint para generar token del backend Go
 app.get('/api/token', async (req, res) => {
   try {
-    const result = await axios.get('http://localhost:8081/api/token')
+    const result = await axios.get('http://backend:8080/api/token')
     res.json(result.data)
   } catch (error) {
     const proxyError = error?.response?.data || error?.message || error
     console.error('❌ Error al obtener token:', proxyError)
+    res.status(500).json({ error: proxyError })
+  }
+})
+
+// Endpoint para obtener propuestas
+app.get('/api/propuestas/:clienteID', async (req, res) => {
+  try {
+    const { clienteID } = req.params
+    const result = await axios.get(`http://backend:8080/propuestas/${clienteID}`)
+    res.json(result.data)
+  } catch (error) {
+    const proxyError = error?.response?.data || error?.message || error
+    console.error('❌ Error al obtener propuestas:', proxyError)
+    res.status(500).json({ error: proxyError })
+  }
+})
+
+// Endpoint para cambiar visita
+app.post('/api/cambiar-visita', async (req, res) => {
+  try {
+    const result = await axios.post('http://backend:8080/cambiar-visita', req.body)
+    res.json(result.data)
+  } catch (error) {
+    const proxyError = error?.response?.data || error?.message || error
+    console.error('❌ Error al cambiar visita:', proxyError)
     res.status(500).json({ error: proxyError })
   }
 })
