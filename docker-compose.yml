@@ -9,12 +9,12 @@ services:
   frontend:
     build: ./ApiFrontendDia
     ports:
-      - "80:80"
+      - "8092:80"
     depends_on:
       - backend
 
   proxy-backend:
     build: ./proxy-backend
     ports:
-      - "3001:3001"
+      - "3002:3001"
     restart: unless-stopped      

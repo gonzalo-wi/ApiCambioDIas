@@ -7,7 +7,7 @@ function normalizarFecha(fecha) {
 
 export async function fetchAttachment({ date_from, date_to }) {
   try {
-    const res = await axios.post('http://localhost:3001/api/attachments', {
+    const res = await axios.post('http://192.168.0.250:3002/api/attachments', {
       date_from: normalizarFecha(date_from),
       date_to: normalizarFecha(date_to)
     })

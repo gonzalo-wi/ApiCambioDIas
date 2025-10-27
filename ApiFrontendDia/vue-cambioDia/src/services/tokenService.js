@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:3001/api'
+const API_BASE = 'http://192.168.0.250:3002/api'
 
 export class TokenService {
   /**
