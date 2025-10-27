@@ -7,6 +7,7 @@ import AdjuntosView from '../views/AdjuntosView.vue'
 import SiisaView from '../views/SiisaView.vue'
 import GenerarTokenView from '../views/GenerarTokenView.vue'
 import WelcomeView from '../views/WelcomeView.vue'
+import WhatsAppView from '../views/WhatsAppView.vue'
 
 const routes = [
   { 
@@ -21,7 +22,8 @@ const routes = [
       { path: 'dashboard', component: Dashboard },
       { path: 'adjuntos', component: AdjuntosView },
       { path: 'siisa', component: SiisaView },
-      { path: 'token', component: GenerarTokenView }
+      { path: 'token', component: GenerarTokenView },
+      { path: 'whatsapp', component: WhatsAppView }
     ]
   },
   { path: '/ventanaView', component: VentanaView }
