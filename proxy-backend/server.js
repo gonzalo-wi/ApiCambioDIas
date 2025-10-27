@@ -12,14 +12,22 @@ const PUBLIC_KEY = 'ivess.38ef4216339c1a0fbc5937876e6470303e7d2ee7'
 
 app.post('/api/attachments', async (req, res) => {
   try {
+    console.log('📝 Solicitando token para attachments...')
     const params = new URLSearchParams()
     params.append('key', PUBLIC_KEY)
 
     const tokenRes = await axios.post(`${API_BASE}/token/`, params, {
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      timeout: 10000
     })
 
     const token = tokenRes.data?.data?.token
+    console.log('✅ Token obtenido:', token ? 'OK' : 'FAIL')
+
+    console.log('📊 Consultando attachments...', {
+      date_from: req.body.date_from,
+      date_to: req.body.date_to
+    })
 
     const result = await axios.get(`${API_BASE}/get/`, {
       headers: {
@@ -31,19 +39,29 @@ app.post('/api/attachments', async (req, res) => {
         date_to: req.body.date_to,
         offset: 0,
         page_size: 100
-      }
+      },
+      timeout: 15000
     })
 
     const filtered = result.data?.data?.filter(att =>
       att.att_type?.includes('image') || att.att_type?.includes('pdf')
     )
 
+    console.log('✅ Attachments filtrados:', filtered?.length || 0)
     res.json(filtered)
   } catch (error) {
     // Muestra el error real en la terminal y lo devuelve al frontend
-    const proxyError = error?.response?.data || error?.message || error
-    console.error('❌ Error en el proxy:', proxyError)
-    res.status(500).json({ error: proxyError })
+    const errorDetails = {
+      message: error.message,
+      code: error.code,
+      response: error.response?.data,
+      status: error.response?.status
+    }
+    console.error('❌ Error en el proxy:', errorDetails)
+    res.status(500).json({ 
+      error: 'Error al consultar attachments',
+      details: errorDetails
+    })
   }
 })
 

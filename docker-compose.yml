@@ -5,16 +5,29 @@ services:
     ports:
       - "8091:8080"
     env_file:
-      - ./ApiBackendDia/my-go-project/.env  
+      - ./ApiBackendDia/my-go-project/.env
+    networks:
+      - app-network
   frontend:
     build: ./ApiFrontendDia
     ports:
       - "8092:80"
     depends_on:
       - backend
+    networks:
+      - app-network
 
   proxy-backend:
     build: ./proxy-backend
     ports:
       - "3002:3001"
-    restart: unless-stopped      
+    restart: unless-stopped
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge      
