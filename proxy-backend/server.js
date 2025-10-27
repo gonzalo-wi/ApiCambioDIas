@@ -47,6 +47,18 @@ app.post('/api/attachments', async (req, res) => {
   }
 })
 
+// Endpoint para generar token del backend Go
+app.get('/api/token', async (req, res) => {
+  try {
+    const result = await axios.get('http://localhost:8081/api/token')
+    res.json(result.data)
+  } catch (error) {
+    const proxyError = error?.response?.data || error?.message || error
+    console.error('❌ Error al obtener token:', proxyError)
+    res.status(500).json({ error: proxyError })
+  }
+})
+
 app.listen(3001, () => {
   console.log('Proxy server corriendo en http://localhost:3001')
 })

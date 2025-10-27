@@ -5,15 +5,23 @@ import Dashboard from '../views/Dashboard.vue'
 import VentanaView from '../views/VentanaView.vue'
 import AdjuntosView from '../views/AdjuntosView.vue'
 import SiisaView from '../views/SiisaView.vue'
+import GenerarTokenView from '../views/GenerarTokenView.vue'
+import WelcomeView from '../views/WelcomeView.vue'
 
 const routes = [
+  { 
+    path: '/', 
+    component: WelcomeView 
+  },
   {
-    path: '/',
+    path: '/panel',
     component: LayoutView,
     children: [
-      { path: '', component: Dashboard },
+      { path: '', redirect: '/panel/dashboard' },
+      { path: 'dashboard', component: Dashboard },
       { path: 'adjuntos', component: AdjuntosView },
-      { path: 'siisa', component: SiisaView }
+      { path: 'siisa', component: SiisaView },
+      { path: 'token', component: GenerarTokenView }
     ]
   },
   { path: '/ventanaView', component: VentanaView }

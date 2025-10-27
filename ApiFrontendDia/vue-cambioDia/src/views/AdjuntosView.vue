@@ -36,6 +36,9 @@ function limpiar() {
 
 <template>
   <div class="adjuntos-page">
+    <!-- Fondo con olas animadas -->
+    <div class="background-waves"></div>
+    
     <div class="container-sm">
       <div class="card fade-in">
         <!-- Header con logo -->
@@ -150,6 +153,32 @@ function limpiar() {
 .adjuntos-page {
   min-height: 100vh;
   padding: 2rem 0;
+  position: relative;
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+}
+
+.background-waves {
+  position: absolute;
+  top: 30%;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url('../assets/wave.svg') no-repeat bottom center;
+  background-size: cover;
+  opacity: 0.1;
+  animation: wave-float 6s ease-in-out infinite;
+  z-index: 1;
+  pointer-events: none;
+}
+
+@keyframes wave-float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(1deg); }
+}
+
+.container-sm {
+  position: relative;
+  z-index: 2;
 }
 
 .header {
@@ -159,8 +188,11 @@ function limpiar() {
 
 .page-title {
   font-size: 1.875rem;
-  font-weight: 700;
-  color: var(--blue-800);
+  font-weight: 800;
+  background: linear-gradient(135deg, #1e40af, #3b82f6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   margin-top: 1rem;
   display: flex;
   align-items: center;
