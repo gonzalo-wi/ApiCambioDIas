@@ -165,7 +165,7 @@ const consultarPropuestas = async () => {
   }
   cargando.value = true
   try {
-    const res = await axios.get(`http://localhost:8080/propuestas/${numeroCliente.value}`)
+    const res = await axios.get(`http://192.168.0.250:8091/propuestas/${numeroCliente.value}`)
     propuestas.value = res.data
     seleccionada.value = null
     mensaje.value = ''
@@ -189,7 +189,7 @@ const confirmarSeleccion = async () => {
       cdRuta: seleccionada.value.ruta + seleccionada.value.diaReparto,
       orden: seleccionada.value.ordenRuta,
     }
-    await axios.post('http://localhost:8080/cambiar-visita', payload)
+    await axios.post('http://192.168.0.250:8091/cambiar-visita', payload)
     mensaje.value = 'Selección enviada correctamente.'
     numeroCliente.value = ''
     propuestas.value = []

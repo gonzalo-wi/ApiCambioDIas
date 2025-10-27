@@ -5,7 +5,7 @@ import axios from 'axios'
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const env: any = (import.meta as any).env || {}
 // Base URL configurable por variable de entorno Vite
-export const baseURL: string = env.VITE_API_BASE_URL || 'http://localhost:8080'
+export const baseURL: string = env.VITE_API_BASE_URL || 'http://192.168.0.250:8091'
 
 const api = axios.create({
   baseURL,
