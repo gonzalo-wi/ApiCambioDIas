@@ -175,18 +175,19 @@ app.get('/api/token/get-token', async (req, res) => {
 // Endpoint para consultar situación full en SIISA (GET)
 app.get('/api/sissa/documento/get-situacion-full', async (req, res) => {
   try {
-    const { documento, sexo, token } = req.query
+    const { documento, sexo } = req.query
     console.log('🏥 Consultando SIISA para documento:', documento)
-    console.log('🔑 Token recibido:', token ? 'SI' : 'NO')
     
-    // La API externa usa GET con query params y token en Authorization header
+    // La API externa solo requiere documento y sexo (no usa token)
+    const params = { documento }
+    if (sexo) params.sexo = sexo
+    
     const result = await axios.get(
       `${EL_JUMILLANO_BASE}/api/sissa/documento/get-situacion-full`,
       {
-        params: { documento, sexo },
+        params,
         headers: {
-          'x-api-key': SIISA_API_KEY,
-          'Authorization': `Bearer ${token}`
+          'x-api-key': SIISA_API_KEY
         },
         timeout: 30000
       }
