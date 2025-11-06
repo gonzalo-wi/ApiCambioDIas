@@ -155,7 +155,7 @@ app.get('/api/token/get-token', async (req, res) => {
       timeout: 10000
     })
     
-    console.log('✅ Token SIISA obtenido')
+    console.log('✅ Token SIISA obtenido:', result.data)
     res.json(result.data)
   } catch (error) {
     const errorDetails = {
