@@ -25,11 +25,14 @@ export class SiisaService {
    * @returns {Promise<Object>} Respuesta de SIISA
    */
   static async consultarPersona(documento, sexo = '') {
-    // Construimos los parámetros (no necesitamos token)
-    const params = { documento }
+    // Primero obtenemos el token
+    const token = await this.obtenerToken()
+    
+    // Construimos los parámetros
+    const params = { documento, token }
     if (sexo) params.sexo = sexo
     
-    // Realizamos la consulta directamente
+    // Realizamos la consulta (el proxy enviará el token como Bearer)
     const response = await apiClient.get(
       API_CONFIG.ENDPOINTS.SIISA_CONSULTA,
       params

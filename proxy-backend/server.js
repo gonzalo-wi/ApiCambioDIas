@@ -175,10 +175,11 @@ app.get('/api/token/get-token', async (req, res) => {
 // Endpoint para consultar situación full en SIISA (GET)
 app.get('/api/sissa/documento/get-situacion-full', async (req, res) => {
   try {
-    const { documento, sexo } = req.query
+    const { documento, sexo, token } = req.query
     console.log('🏥 Consultando SIISA para documento:', documento)
+    console.log('🔑 Token recibido:', token ? 'SI' : 'NO')
     
-    // La API externa solo requiere documento y sexo (no usa token)
+    // La API externa requiere Bearer token en Authorization header
     const params = { documento }
     if (sexo) params.sexo = sexo
     
@@ -187,7 +188,8 @@ app.get('/api/sissa/documento/get-situacion-full', async (req, res) => {
       {
         params,
         headers: {
-          'x-api-key': SIISA_API_KEY
+          'x-api-key': SIISA_API_KEY,
+          'Authorization': `Bearer ${token}`
         },
         timeout: 30000
       }
