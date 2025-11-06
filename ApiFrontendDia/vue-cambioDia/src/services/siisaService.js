@@ -56,10 +56,16 @@ export class SiisaService {
     console.log('📊 Estructura:', {
       success: response.success,
       hasData: !!response.data,
+      hasDatosCompletos: !!response.datos_completos,
       hasTexto: !!response.texto,
       hasSemaforo: !!response.semaforo,
       keys: Object.keys(response)
     })
+    
+    if (response.datos_completos) {
+      console.log('📋 Datos completos:', response.datos_completos)
+      console.log('🔑 Keys en datos_completos:', Object.keys(response.datos_completos))
+    }
 
     // Verificamos que la consulta fue exitosa
     if (!response.success) {
