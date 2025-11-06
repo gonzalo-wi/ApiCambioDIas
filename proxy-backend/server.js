@@ -112,7 +112,7 @@ app.post('/api/cambiar-visita', async (req, res) => {
 })
 
 // ========== PROXY PARA APIs EXTERNAS (El Jumillano) ==========
-const EL_JUMILLANO_BASE = 'http://ho.el-jumillano.com.ar:24937/api'
+const EL_JUMILLANO_BASE = 'http://ho.el-jumillano.com.ar:24937'
 const SIISA_API_KEY = 'JUMI_8vQ2rKx9ZcLfR1aE5pTgH0wVbNdUsYi3oJ7qSXzMpA4B'
 
 // Endpoint para disponibilidad de jaula
@@ -121,7 +121,7 @@ app.get('/api/aguas/disponibilidad-jaula', async (req, res) => {
     const { idReparto } = req.query
     console.log('🚚 Consultando disponibilidad jaula para reparto:', idReparto)
     
-    const result = await axios.get(`${EL_JUMILLANO_BASE}/disponibilidad-jaula`, {
+    const result = await axios.get(`${EL_JUMILLANO_BASE}/api/aguas/disponibilidad-jaula`, {
       params: { idReparto },
       timeout: 30000
     })
@@ -148,7 +148,7 @@ app.get('/api/token/get-token', async (req, res) => {
   try {
     console.log('🔑 Solicitando token SIISA...')
     
-    const result = await axios.get(`${EL_JUMILLANO_BASE}/token/get-token`, {
+    const result = await axios.get(`${EL_JUMILLANO_BASE}/api/token/get-token`, {
       headers: {
         'x-api-key': SIISA_API_KEY
       },
@@ -172,19 +172,19 @@ app.get('/api/token/get-token', async (req, res) => {
   }
 })
 
-// Endpoint para consultar situación full en SIISA
+// Endpoint para consultar situación full en SIISA (cambio a GET)
 app.post('/api/sissa/documento/get-situacion-full', async (req, res) => {
   try {
     const { documento, sexo, token } = req.body
     console.log('🏥 Consultando SIISA para documento:', documento)
     
-    const result = await axios.post(
-      `${EL_JUMILLANO_BASE}/sissa/documento/get-situacion-full`,
-      { documento, sexo, token },
+    // La API externa usa GET con query params, no POST
+    const result = await axios.get(
+      `${EL_JUMILLANO_BASE}/api/sissa/documento/get-situacion-full`,
       {
+        params: { documento, sexo, token },
         headers: {
-          'x-api-key': SIISA_API_KEY,
-          'Content-Type': 'application/json'
+          'x-api-key': SIISA_API_KEY
         },
         timeout: 30000
       }
