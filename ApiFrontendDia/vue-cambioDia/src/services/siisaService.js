@@ -52,6 +52,15 @@ export class SiisaService {
       params
     )
 
+    console.log('✅ Respuesta SIISA completa:', response)
+    console.log('📊 Estructura:', {
+      success: response.success,
+      hasData: !!response.data,
+      hasTexto: !!response.texto,
+      hasSemaforo: !!response.semaforo,
+      keys: Object.keys(response)
+    })
+
     // Verificamos que la consulta fue exitosa
     if (!response.success) {
       throw new Error('La consulta a SIISA no fue exitosa')
