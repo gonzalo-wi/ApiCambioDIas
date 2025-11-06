@@ -178,10 +178,15 @@ app.get('/api/sissa/documento/get-situacion-full', async (req, res) => {
     const { documento, sexo, token } = req.query
     console.log('🏥 Consultando SIISA para documento:', documento)
     console.log('🔑 Token recibido:', token ? 'SI' : 'NO')
+    console.log('🎫 Token value:', token ? token.substring(0, 50) + '...' : 'VACIO')
     
     // La API externa requiere Bearer token en Authorization header
     const params = { documento }
     if (sexo) params.sexo = sexo
+    
+    console.log('📤 Enviando request a:', `${EL_JUMILLANO_BASE}/api/sissa/documento/get-situacion-full`)
+    console.log('📤 Params:', params)
+    console.log('📤 Authorization header:', token ? `Bearer ${token.substring(0, 50)}...` : 'NO TOKEN')
     
     const result = await axios.get(
       `${EL_JUMILLANO_BASE}/api/sissa/documento/get-situacion-full`,
