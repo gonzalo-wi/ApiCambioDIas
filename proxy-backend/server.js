@@ -111,6 +111,102 @@ app.post('/api/cambiar-visita', async (req, res) => {
   }
 })
 
+// ========== PROXY PARA APIs EXTERNAS (El Jumillano) ==========
+const EL_JUMILLANO_BASE = 'http://ho.el-jumillano.com.ar:24937/api'
+const SIISA_API_KEY = 'JUMI_8vQ2rKx9ZcLfR1aE5pTgH0wVbNdUsYi3oJ7qSXzMpA4B'
+
+// Endpoint para disponibilidad de jaula
+app.get('/api/aguas/disponibilidad-jaula', async (req, res) => {
+  try {
+    const { idReparto } = req.query
+    console.log('🚚 Consultando disponibilidad jaula para reparto:', idReparto)
+    
+    const result = await axios.get(`${EL_JUMILLANO_BASE}/disponibilidad-jaula`, {
+      params: { idReparto },
+      timeout: 30000
+    })
+    
+    console.log('✅ Disponibilidad jaula obtenida')
+    res.json(result.data)
+  } catch (error) {
+    const errorDetails = {
+      message: error.message,
+      code: error.code,
+      response: error.response?.data,
+      status: error.response?.status
+    }
+    console.error('❌ Error en disponibilidad jaula:', errorDetails)
+    res.status(error.response?.status || 500).json({ 
+      error: 'Error al consultar disponibilidad de jaula',
+      details: errorDetails
+    })
+  }
+})
+
+// Endpoint para obtener token SIISA
+app.get('/api/token/get-token', async (req, res) => {
+  try {
+    console.log('🔑 Solicitando token SIISA...')
+    
+    const result = await axios.get(`${EL_JUMILLANO_BASE}/token/get-token`, {
+      headers: {
+        'x-api-key': SIISA_API_KEY
+      },
+      timeout: 10000
+    })
+    
+    console.log('✅ Token SIISA obtenido')
+    res.json(result.data)
+  } catch (error) {
+    const errorDetails = {
+      message: error.message,
+      code: error.code,
+      response: error.response?.data,
+      status: error.response?.status
+    }
+    console.error('❌ Error al obtener token SIISA:', errorDetails)
+    res.status(error.response?.status || 500).json({ 
+      error: 'Error al obtener token SIISA',
+      details: errorDetails
+    })
+  }
+})
+
+// Endpoint para consultar situación full en SIISA
+app.post('/api/sissa/documento/get-situacion-full', async (req, res) => {
+  try {
+    const { documento, sexo, token } = req.body
+    console.log('🏥 Consultando SIISA para documento:', documento)
+    
+    const result = await axios.post(
+      `${EL_JUMILLANO_BASE}/sissa/documento/get-situacion-full`,
+      { documento, sexo, token },
+      {
+        headers: {
+          'x-api-key': SIISA_API_KEY,
+          'Content-Type': 'application/json'
+        },
+        timeout: 30000
+      }
+    )
+    
+    console.log('✅ Datos SIISA obtenidos')
+    res.json(result.data)
+  } catch (error) {
+    const errorDetails = {
+      message: error.message,
+      code: error.code,
+      response: error.response?.data,
+      status: error.response?.status
+    }
+    console.error('❌ Error en consulta SIISA:', errorDetails)
+    res.status(error.response?.status || 500).json({ 
+      error: 'Error al consultar SIISA',
+      details: errorDetails
+    })
+  }
+})
+
 app.listen(3001, () => {
   console.log('Proxy server corriendo en http://localhost:3001')
 })

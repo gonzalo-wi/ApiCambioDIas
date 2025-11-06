@@ -2,12 +2,8 @@ import { createHttpClient } from './api.client'
 import { API_CONFIG } from '../config/api.config'
 import { SIISA_COLORS } from '../constants'
 
-// Cliente HTTP para la API de El Jumillano (SIISA)
-const siisaClient = createHttpClient(API_CONFIG.EXTERNAL_APIS.EL_JUMILLANO, {
-  headers: {
-    'x-api-key': API_CONFIG.API_KEYS.SIISA
-  }
-})
+// Cliente HTTP que usa el proxy (BASE_URL = http://192.168.0.250:3002)
+const apiClient = createHttpClient(API_CONFIG.BASE_URL)
 
 /**
  * Servicio para consultas SIISA (Sistema de Información de Salud Argentina)
@@ -18,7 +14,7 @@ export class SiisaService {
    * @returns {Promise<string>} Token de acceso
    */
   static async obtenerToken() {
-    const response = await siisaClient.get(API_CONFIG.ENDPOINTS.SIISA_TOKEN)
+    const response = await apiClient.get(API_CONFIG.ENDPOINTS.SIISA_TOKEN)
     return response.token
   }
 
@@ -32,19 +28,10 @@ export class SiisaService {
     // Primero obtenemos el token
     const token = await this.obtenerToken()
     
-    // Construimos los parámetros
-    const params = { documento }
-    if (sexo) params.sexo = sexo
-    
-    // Realizamos la consulta
-    const response = await siisaClient.get(
+    // Realizamos la consulta (POST porque el proxy espera POST)
+    const response = await apiClient.post(
       API_CONFIG.ENDPOINTS.SIISA_CONSULTA,
-      params,
-      {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      }
+      { documento, sexo, token }
     )
 
     // Verificamos que la consulta fue exitosa

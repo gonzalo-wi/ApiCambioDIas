@@ -1,13 +1,13 @@
 import { createHttpClient } from './api.client'
 import { API_CONFIG } from '../config/api.config'
 
-// Cliente HTTP para la API de El Jumillano
-const jumillanoClient = createHttpClient(API_CONFIG.EXTERNAL_APIS.EL_JUMILLANO)
+// Cliente HTTP que usa el proxy (BASE_URL = http://192.168.0.250:3002)
+const apiClient = createHttpClient(API_CONFIG.BASE_URL)
 
 /**
  * Servicio para gestión de disponibilidad de jaulas
  */
 export async function consultarDisponibilidadJaula(idReparto) {
-  return jumillanoClient.get('/disponibilidad-jaula', { idReparto })
+  return apiClient.get(API_CONFIG.ENDPOINTS.JAULA_DISPONIBILIDAD, { idReparto })
 }
 
