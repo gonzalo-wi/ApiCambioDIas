@@ -28,8 +28,8 @@ export class SiisaService {
     // Primero obtenemos el token
     const token = await this.obtenerToken()
     
-    // Realizamos la consulta (POST porque el proxy espera POST)
-    const response = await apiClient.post(
+    // Realizamos la consulta (GET con query params)
+    const response = await apiClient.get(
       API_CONFIG.ENDPOINTS.SIISA_CONSULTA,
       { documento, sexo, token }
     )
