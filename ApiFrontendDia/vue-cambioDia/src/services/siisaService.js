@@ -14,8 +14,20 @@ export class SiisaService {
    * @returns {Promise<string>} Token de acceso
    */
   static async obtenerToken() {
-    const response = await apiClient.get(API_CONFIG.ENDPOINTS.SIISA_TOKEN)
-    return response.token
+    try {
+      console.log('🔑 Obteniendo token SIISA...')
+      const response = await apiClient.get(API_CONFIG.ENDPOINTS.SIISA_TOKEN)
+      console.log('✅ Respuesta token:', response)
+      
+      // La respuesta puede ser { token: "..." } o el token directamente
+      const token = response.token || response
+      console.log('🎫 Token extraído:', token ? 'SI' : 'NO')
+      
+      return token
+    } catch (error) {
+      console.error('❌ Error obteniendo token SIISA:', error)
+      throw error
+    }
   }
 
   /**
@@ -27,6 +39,8 @@ export class SiisaService {
   static async consultarPersona(documento, sexo = '') {
     // Primero obtenemos el token
     const token = await this.obtenerToken()
+    
+    console.log('📝 Consultando SIISA con token:', token ? 'SI' : 'NO')
     
     // Construimos los parámetros
     const params = { documento, token }
