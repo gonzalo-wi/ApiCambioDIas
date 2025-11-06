@@ -72,7 +72,8 @@ export class SiisaService {
       throw new Error('La consulta a SIISA no fue exitosa')
     }
     
-    return response
+    // Adaptar/normalizar estructura para la vista
+    return normalizeSiisaResponse(response)
   }
 
   /**
@@ -81,9 +82,36 @@ export class SiisaService {
    * @returns {Object} Información del semáforo procesada
    */
   static procesarSemaforo(semaforo) {
+    const estilos = SIISA_COLORS[semaforo.color?.toUpperCase?.()] || SIISA_COLORS.ROJO
+    // Derivar texto legible del color
+    const textMap = { VERDE: 'Aprobado', AMARILLO: 'Revisar', ROJO: 'Riesgo' }
+    const text = textMap[semaforo.color?.toUpperCase?.()] || 'Estado'
     return {
       ...semaforo,
-      estilos: SIISA_COLORS[semaforo.color] || SIISA_COLORS.rojo
+      estilos: { ...estilos, text }
     }
   }
+}
+
+// Helper: normaliza respuesta de SIISA a contrato estable para la vista
+function normalizeSiisaResponse(resp) {
+  // Esperado actual: { success, documento_consultado, sexo_filtro, datos_completos, metadata }
+  const datos = resp?.datos_completos || null
+  const semaforo = datos?.semaforo || null
+  const dataCompleta = datos?.data_completa || null
+
+  const normalized = {
+    success: !!resp?.success,
+    documento_consultado: resp?.documento_consultado || '',
+    sexo_filtro: resp?.sexo_filtro || '',
+    // Mantener la misma llave usada por la vista
+    datos_completos: {
+      ...datos,
+      semaforo: semaforo || { color: 'ROJO', situacion: 'Sin datos', deudas: [] },
+      data_completa: dataCompleta || {},
+    },
+    metadata: resp?.metadata || {}
+  }
+
+  return normalized
 }

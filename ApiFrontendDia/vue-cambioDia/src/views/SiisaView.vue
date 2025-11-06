@@ -128,11 +128,12 @@
           </div>
           
           <!-- Semáforo grande -->
-          <div class="semaforo-badge" :class="`semaforo-${datosCompletos.semaforo.color}`">
+          <div v-if="datosCompletos?.semaforo" class="semaforo-badge" :class="`semaforo-${datosCompletos.semaforo.color}`">
             <div class="semaforo-circle-big"></div>
             <div class="semaforo-text">
-              <div class="semaforo-status-big">{{ semaforoEstilos.texto }}</div>
-              <div class="semaforo-sit">{{ datosCompletos.semaforo.situacion }}</div>
+              <!-- 'text' proviene de SIISA_COLORS; antes se usaba 'texto' y causaba undefined -->
+              <div class="semaforo-status-big">{{ semaforoEstilos.text || 'Sin datos' }}</div>
+              <div class="semaforo-sit">{{ datosCompletos.semaforo.situacion || 'Sin situación' }}</div>
             </div>
           </div>
           
@@ -357,7 +358,12 @@ const scoringData = computed(() => {
 
 const semaforoEstilos = computed(() => {
   if (!datosCompletos.value?.semaforo) return {}
-  return SiisaService.procesarSemaforo(datosCompletos.value.semaforo).estilos
+  const proc = SiisaService.procesarSemaforo(datosCompletos.value.semaforo)
+  // Asegurar propiedad 'text' para la vista; compatibilidad con 'texto'
+  return {
+    ...proc.estilos,
+    text: proc.estilos.text || proc.estilos.texto || ''
+  }
 })
 
 function limpiarResultados() {
