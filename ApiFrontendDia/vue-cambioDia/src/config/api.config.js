@@ -37,12 +37,10 @@ export const API_CONFIG = {
   // API Keys (deberían venir de variables de entorno en producción)
   API_KEYS: {
     SIISA: import.meta.env.VITE_SIISA_API_KEY || 'JUMI_8vQ2rKx9ZcLfR1aE5pTgH0wVbNdUsYi3oJ7qSXzMpA4B',
+  },
+  
+  // URLs externas (fuera del proxy)
+  EXTERNAL_APIS: {
+    EL_JUMILLANO: import.meta.env.VITE_EL_JUMILLANO_API || 'http://ho.el-jumillano.com.ar:24937/api',
   }
-}
-
-/**
- * URLs externas (fuera del proxy)
- */
-export const EXTERNAL_APIS = {
-  EL_JUMILLANO: 'http://ho.el-jumillano.com.ar:24937/api',
 }
