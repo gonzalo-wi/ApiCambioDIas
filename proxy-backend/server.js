@@ -172,13 +172,13 @@ app.get('/api/token/get-token', async (req, res) => {
   }
 })
 
-// Endpoint para consultar situación full en SIISA (cambio a GET)
-app.post('/api/sissa/documento/get-situacion-full', async (req, res) => {
+// Endpoint para consultar situación full en SIISA (GET)
+app.get('/api/sissa/documento/get-situacion-full', async (req, res) => {
   try {
-    const { documento, sexo, token } = req.body
+    const { documento, sexo, token } = req.query
     console.log('🏥 Consultando SIISA para documento:', documento)
     
-    // La API externa usa GET con query params, no POST
+    // La API externa usa GET con query params
     const result = await axios.get(
       `${EL_JUMILLANO_BASE}/api/sissa/documento/get-situacion-full`,
       {
