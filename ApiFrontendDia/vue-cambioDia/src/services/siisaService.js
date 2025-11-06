@@ -1,96 +1,69 @@
-const API_BASE_URL = 'http://192.168.0.251:8083/api'
+import { createHttpClient } from './api.client'
+import { API_CONFIG } from '../config/api.config'
+import { SIISA_COLORS } from '../constants'
 
+// Cliente HTTP para la API de El Jumillano (SIISA)
+const siisaClient = createHttpClient(API_CONFIG.EXTERNAL_APIS.EL_JUMILLANO, {
+  headers: {
+    'x-api-key': API_CONFIG.API_KEYS.SIISA
+  }
+})
+
+/**
+ * Servicio para consultas SIISA (Sistema de Información de Salud Argentina)
+ */
 export class SiisaService {
+  /**
+   * Obtiene el token de autenticación para SIISA
+   * @returns {Promise<string>} Token de acceso
+   */
+  static async obtenerToken() {
+    const response = await siisaClient.get(API_CONFIG.ENDPOINTS.SIISA_TOKEN)
+    return response.token
+  }
+
   /**
    * Consulta los datos financieros de una persona en SIISA
    * @param {string} documento - Número de documento (DNI)
-   * @param {string} sexo - Sexo de la persona (opcional)
-   * @returns {Promise} - Respuesta de la API
+   * @param {string} sexo - Sexo de la persona (M/F - opcional)
+   * @returns {Promise<Object>} Respuesta de SIISA
    */
   static async consultarPersona(documento, sexo = '') {
-    try {
-      const url = `${API_BASE_URL}/get-data-siisa?documento=${documento}&sexo=${sexo}`
-      
-      const response = await fetch(url, {
-        method: 'POST',
+    // Primero obtenemos el token
+    const token = await this.obtenerToken()
+    
+    // Construimos los parámetros
+    const params = { documento }
+    if (sexo) params.sexo = sexo
+    
+    // Realizamos la consulta
+    const response = await siisaClient.get(
+      API_CONFIG.ENDPOINTS.SIISA_CONSULTA,
+      params,
+      {
         headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          'Authorization': `Bearer ${token}`
         }
-      })
-
-      if (!response.ok) {
-        throw new Error(`Error HTTP: ${response.status} - ${response.statusText}`)
       }
+    )
 
-      const data = await response.json()
-      return data
-    } catch (error) {
-      console.error('Error en consultarPersona:', error)
-      throw new Error(`Error al consultar SIISA: ${error.message}`)
+    // Verificamos que la consulta fue exitosa
+    if (!response.success) {
+      throw new Error('La consulta a SIISA no fue exitosa')
     }
+    
+    return response
   }
 
   /**
    * Determina el color del semáforo según la situación financiera
    * @param {Object} semaforo - Objeto semáforo de la respuesta
-   * @returns {Object} - Información del semáforo procesada
+   * @returns {Object} Información del semáforo procesada
    */
   static procesarSemaforo(semaforo) {
-    const colores = {
-      verde: {
-        color: '#22c55e',
-        bgColor: '#dcfce7',
-        borderColor: '#16a34a',
-        texto: 'Situación Normal'
-      },
-      amarillo: {
-        color: '#eab308',
-        bgColor: '#fefce8',
-        borderColor: '#ca8a04',
-        texto: 'Situación Condicional'
-      },
-      rojo: {
-        color: '#ef4444',
-        bgColor: '#fef2f2',
-        borderColor: '#dc2626',
-        texto: 'Situación Crítica'
-      }
-    }
-
     return {
       ...semaforo,
-      estilos: colores[semaforo.color] || colores.rojo
+      estilos: SIISA_COLORS[semaforo.color] || SIISA_COLORS.rojo
     }
-  }
-
-  /**
-   * Formatea el monto en pesos argentinos
-   * @param {number} monto - Monto a formatear
-   * @returns {string} - Monto formateado
-   */
-  static formatearMonto(monto) {
-    return new Intl.NumberFormat('es-AR', {
-      style: 'currency',
-      currency: 'ARS'
-    }).format(monto)
-  }
-
-  /**
-   * Calcula la edad basada en la fecha de nacimiento
-   * @param {string} fechaNac - Fecha de nacimiento en formato YYYY-MM-DD
-   * @returns {number} - Edad calculada
-   */
-  static calcularEdad(fechaNac) {
-    const hoy = new Date()
-    const nacimiento = new Date(fechaNac)
-    let edad = hoy.getFullYear() - nacimiento.getFullYear()
-    const diferenciaMes = hoy.getMonth() - nacimiento.getMonth()
-    
-    if (diferenciaMes < 0 || (diferenciaMes === 0 && hoy.getDate() < nacimiento.getDate())) {
-      edad--
-    }
-    
-    return edad
   }
 }

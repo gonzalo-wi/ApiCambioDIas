@@ -1,19 +1,15 @@
-const API_BASE = 'http://192.168.0.250:3002/api'
+import { apiClient } from './api.client'
+import { API_CONFIG } from '../config/api.config'
 
+/**
+ * Servicio para gestión de tokens de dispensador
+ */
 export class TokenService {
   /**
-   * Llama a GET /api/token a través del proxy y retorna el JSON
+   * Genera un nuevo token de 6 dígitos
+   * @returns {Promise<{token: string}>} Token generado
    */
   static async getToken() {
-    const url = `${API_BASE}/token`
-    const resp = await fetch(url, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }
-    })
-    if (!resp.ok) {
-      const text = await resp.text()
-      throw new Error(`HTTP ${resp.status}: ${text}`)
-    }
-    return resp.json()
+    return apiClient.get(API_CONFIG.ENDPOINTS.TOKEN)
   }
 }

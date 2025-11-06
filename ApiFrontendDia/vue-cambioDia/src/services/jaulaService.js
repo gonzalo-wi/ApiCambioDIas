@@ -1,15 +1,13 @@
-import axios from 'axios'
+import { createHttpClient } from './api.client'
+import { API_CONFIG } from '../config/api.config'
 
-const API_BASE = 'http://ho.el-jumillano.com.ar:24937/api/aguas'
+// Cliente HTTP para la API de El Jumillano
+const jumillanoClient = createHttpClient(API_CONFIG.EXTERNAL_APIS.EL_JUMILLANO)
 
+/**
+ * Servicio para gestión de disponibilidad de jaulas
+ */
 export async function consultarDisponibilidadJaula(idReparto) {
-  try {
-    const res = await axios.get(`${API_BASE}/disponibilidad-jaula`, {
-      params: { idReparto }
-    })
-    return res.data
-  } catch (err) {
-    console.error('❌ Error consultando disponibilidad jaula:', err)
-    throw err
-  }
+  return jumillanoClient.get('/disponibilidad-jaula', { idReparto })
 }
+

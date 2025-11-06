@@ -97,7 +97,7 @@
           v-for="(item, index) in disponibilidad" 
           :key="index"
           class="disponibilidad-card"
-          :class="{ 'poca-disponibilidad': (4 - item.cantidad) <= 1 }"
+          :class="{ 'poca-disponibilidad': item.cantidad >= 2 }"
         >
           <div class="card-date">
             <svg class="date-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -112,17 +112,17 @@
           <div class="card-separator"></div>
           
           <div class="card-cantidad">
-            <div class="cantidad-label">Lugares disponibles</div>
+            <div class="cantidad-label">Lugares ocupados</div>
             <div class="cantidad-value">
               <svg class="cantidad-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="currentColor">
                 <path d="M280-40q-33 0-56.5-23.5T200-120v-720q0-33 23.5-56.5T280-920h400q33 0 56.5 23.5T760-840v720q0 33-23.5 56.5T680-40H280Zm0-120v40h400v-40H280Zm0-80h400v-480H280v480Zm0-560h400v-40H280v40Zm0 0v-40 40Zm0 640v40-40Z"/>
               </svg>
-              {{ 4 - item.cantidad }} / 4
+              {{ item.cantidad }} / 3
             </div>
-            <div class="ocupados-info">{{ item.cantidad }} dispenser{{ item.cantidad !== 1 ? 's' : '' }} asignado{{ item.cantidad !== 1 ? 's' : '' }}</div>
+            <div class="ocupados-info">{{ 3 - item.cantidad }} lugar{{ (3 - item.cantidad) !== 1 ? 'es' : '' }} disponible{{ (3 - item.cantidad) !== 1 ? 's' : '' }}</div>
           </div>
 
-          <div v-if="(4 - item.cantidad) <= 1" class="warning-badge">
+          <div v-if="item.cantidad >= 2" class="warning-badge">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>

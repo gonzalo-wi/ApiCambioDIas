@@ -65,14 +65,23 @@ app.post('/api/attachments', async (req, res) => {
   }
 })
 
-// Endpoint para generar token del backend Go
+// Endpoint para generar token del backend Spring Boot
 app.get('/api/token', async (req, res) => {
   try {
-    const result = await axios.get('http://backend:8080/api/token')
+    console.log('🔑 Solicitando token del backend Spring Boot...')
+    const result = await axios.get('http://localhost:8081/api/token', {
+      timeout: 5000
+    })
+    console.log('✅ Token generado:', result.data)
     res.json(result.data)
   } catch (error) {
     const proxyError = error?.response?.data || error?.message || error
-    console.error('❌ Error al obtener token:', proxyError)
+    console.error('❌ Error al obtener token:', {
+      message: error.message,
+      code: error.code,
+      response: error.response?.data,
+      status: error.response?.status
+    })
     res.status(500).json({ error: proxyError })
   }
 })
