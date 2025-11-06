@@ -25,6 +25,8 @@ services:
     dns:
       - 8.8.8.8
       - 8.8.4.4
+    extra_hosts:
+      - "ho.el-jumillano.com.ar:200.80.131.34"
     networks:
       - app-network
 
