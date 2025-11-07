@@ -91,6 +91,21 @@ export class SiisaService {
       estilos: { ...estilos, text }
     }
   }
+
+  /**
+   * Formatea un monto en formato de moneda argentina
+   * @param {number} monto - Monto a formatear
+   * @returns {string} Monto formateado
+   */
+  static formatearMonto(monto) {
+    if (!monto && monto !== 0) return '$0'
+    return new Intl.NumberFormat('es-AR', {
+      style: 'currency',
+      currency: 'ARS',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(monto)
+  }
 }
 
 // Helper: normaliza respuesta de SIISA a contrato estable para la vista
