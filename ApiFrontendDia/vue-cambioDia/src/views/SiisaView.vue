@@ -181,7 +181,7 @@
                 </div>
                 <div class="summary-item">
                   <span class="summary-label">Situación</span>
-                  <span class="summary-value small">{{ datosCompletos.semaforo.situacion_maxima }}</span>
+                  <span class="summary-value small">{{ datosCompletos.semaforo.situacion_maxima_label || datosCompletos.semaforo.situacion }}</span>
                 </div>
               </div>
             </div>
@@ -255,6 +255,45 @@
               <div class="info-item">
                 <span class="info-label-new">Ingreso</span>
                 <span class="info-value-new">{{ formatearFecha(laboralData.FechaIngreso) }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Morosidades Comerciales -->
+          <div class="info-card" v-if="datosCompletos.semaforo.morosidades_comerciales && datosCompletos.semaforo.morosidades_comerciales.length">
+            <div class="card-header-inline">
+              <svg class="card-icon" viewBox="0 -960 960 960" fill="currentColor">
+                <path d="M640-520q17 0 28.5-11.5T680-560q0-17-11.5-28.5T640-600q-17 0-28.5 11.5T600-560q0 17 11.5 28.5T640-520Zm-320-80h200v-80H320v80ZM180-120q-34-114-67-227.5T80-580q0-92 64-156t156-64h200q29-38 70.5-59t89.5-21q25 0 42.5 17.5T720-820q0 6-1.5 12t-3.5 11q-4 11-7.5 22.5T702-751l91 91h87v279l-113 37-67 224H480v-80h-80v80H180Z"/>
+              </svg>
+              <h3 class="card-title">Morosidades Comerciales</h3>
+              <span class="section-badge">{{ datosCompletos.semaforo.morosidades_comerciales.length }}</span>
+            </div>
+            <div class="card-content">
+              <div class="deudas-grid">
+                <div 
+                  v-for="(moro, idx) in datosCompletos.semaforo.morosidades_comerciales"
+                  :key="idx"
+                  class="deuda-card"
+                >
+                  <div class="deuda-card-header">
+                    <div class="deuda-entidad-info">
+                      <div class="deuda-icon-wrapper">
+                        <svg viewBox="0 -960 960 960" fill="currentColor">
+                          <path d="M160-120v-480l320-240 320 240v480H560v-280H400v280H160Z"/>
+                        </svg>
+                      </div>
+                      <div>
+                        <h4 class="deuda-entidad-name">{{ moro.entidad }}</h4>
+                        <span class="deuda-origen-badge">Categoría {{ moro.categoria_id }} - {{ moro.categoria_nombre }}</span>
+                      </div>
+                    </div>
+                    <div class="deuda-monto-big">Período {{ moro.periodo }}</div>
+                  </div>
+                </div>
+              </div>
+              <div class="info-item" v-if="datosCompletos.semaforo.criterio_aplicado">
+                <span class="info-label-new">Criterio aplicado</span>
+                <span class="info-value-new">{{ datosCompletos.semaforo.criterio_aplicado }}</span>
               </div>
             </div>
           </div>

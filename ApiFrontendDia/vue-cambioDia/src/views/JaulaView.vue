@@ -81,7 +81,7 @@
       </div>
     </div>
 
-    <div v-if="disponibilidad.length > 0" class="results-section">
+  <div v-if="disponibilidad.length > 0" class="results-section">
       <div class="results-header">
         <h3 class="results-title">
           <svg class="title-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -134,10 +134,10 @@
 
     <div v-else-if="consultaRealizada && !loading" class="empty-state">
       <svg class="empty-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
-      <h3>No hay disponibilidad</h3>
-      <p>No se encontraron fechas disponibles para este reparto</p>
+      <h3>Todo disponible</h3>
+      <p>No hay ocupaciones registradas para este reparto. La jaula está totalmente disponible.</p>
     </div>
   </div>
 </template>

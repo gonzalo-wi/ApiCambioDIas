@@ -1,6 +1,6 @@
 import { createHttpClient } from './api.client'
 import { API_CONFIG } from '../config/api.config'
-import { SIISA_COLORS } from '../constants'
+import { SIISA_COLORS, SIISA_SITUACION_LABELS } from '../constants'
 
 // Cliente HTTP que usa el proxy (BASE_URL = http://192.168.0.250:3002)
 const apiClient = createHttpClient(API_CONFIG.BASE_URL)
@@ -115,6 +115,12 @@ function normalizeSiisaResponse(resp) {
   const semaforo = datos?.semaforo || null
   const dataCompleta = datos?.data_completa || null
 
+  // Normalizar campos derivados para la vista
+  const situacionMaxBcra = semaforo?.situacion_maxima_bcra
+  const situacionMaxLabel = typeof situacionMaxBcra === 'number'
+    ? (SIISA_SITUACION_LABELS[situacionMaxBcra] || `Situación ${situacionMaxBcra}`)
+    : undefined
+
   const normalized = {
     success: !!resp?.success,
     documento_consultado: resp?.documento_consultado || '',
@@ -122,7 +128,18 @@ function normalizeSiisaResponse(resp) {
     // Mantener la misma llave usada por la vista
     datos_completos: {
       ...datos,
-      semaforo: semaforo || { color: 'ROJO', situacion: 'Sin datos', deudas: [] },
+      semaforo: {
+        color: semaforo?.color || 'ROJO',
+        situacion: semaforo?.situacion || 'Sin datos',
+        deudas: semaforo?.deudas || [],
+        morosidades_comerciales: semaforo?.morosidades_comerciales || [],
+        situaciones_encontradas: semaforo?.situaciones_encontradas || [],
+        criterio_aplicado: semaforo?.criterio_aplicado || '',
+        situacion_maxima_bcra: situacionMaxBcra,
+        categoria_maxima_morosidad: semaforo?.categoria_maxima_morosidad,
+        // Etiqueta legible que usa la vista
+        situacion_maxima_label: situacionMaxLabel,
+      },
       data_completa: dataCompleta || {},
     },
     metadata: resp?.metadata || {}
