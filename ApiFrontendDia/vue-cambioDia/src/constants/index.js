@@ -14,6 +14,7 @@ export const ROUTES = {
     TOKEN: '/panel/token',
     WHATSAPP: '/panel/whatsapp',
     JAULA: '/panel/jaula',
+    GESTION_FC: '/panel/gestion-fc',
   }
 }
 

@@ -18,6 +18,7 @@ export const API_CONFIG = {
     
     // Jaula - disponibilidad de camiones
     JAULA_DISPONIBILIDAD: '/api/aguas/disponibilidad-jaula',
+    JAULA_AGENDAR_VISITA: '/api/aguas/disponibilidad-jaula-x-reparto-fecha-cantidad',
     
     // SIISA - Central de deudores
     SIISA_TOKEN: '/api/token/get-token',
@@ -26,6 +27,21 @@ export const API_CONFIG = {
     // Cambio de día (Ventana)
     PROPUESTAS: '/api/propuestas',
     CAMBIAR_VISITA: '/api/cambiar-visita',
+
+    // Consultar token FC
+    CONSULTAR_TOKEN_FC: '/api/consultar-token-fc',
+
+    // Generar sesión T&C
+    CONTACT_CENTER_SESSION: '/api/contact-center/session',
+
+    // Consultar estado T&C por sesión
+    TERMS_BY_SESSION: '/api/terms/by-session',
+
+    // Crear entrega contact-center (instalación)
+    DELIVERIES_CONTACT_CENTER: '/api/v1/deliveries/contact-center',
+
+    // WhatsApp - Infobip Moments
+    WHATSAPP_PARTICIPANTS: '/api/whatsapp/participants',
   },
   
   // Headers por defecto

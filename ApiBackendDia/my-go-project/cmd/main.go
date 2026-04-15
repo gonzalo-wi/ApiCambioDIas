@@ -35,6 +35,10 @@ func main() {
 	router.GET("/propuestas/:clienteID", handlers.ObtenerPropuestas)
 	router.POST("/cambiar-visita", handlers.CambiarVisita)
 
+	// Endpoints S1 Analytics (el token se obtiene automáticamente)
+	router.GET("/api/s1/messages", handlers.GetS1Messages)
+	router.GET("/api/s1/attachments", handlers.GetS1Attachments)
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"

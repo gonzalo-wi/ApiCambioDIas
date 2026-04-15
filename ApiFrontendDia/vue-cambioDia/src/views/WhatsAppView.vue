@@ -16,24 +16,9 @@
         <h1>Mensajería WhatsApp</h1>
         <p>Sistema de comunicación profesional para tu equipo de atención al cliente</p>
       </div>
-      <div class="status-badge">
-        <span class="badge-icon">⏱</span>
-        <span class="badge-text">Próximamente</span>
-      </div>
+      <!-- Status badge removido para vista productiva -->
     </div>
-
-    <!-- Aviso de Desarrollo -->
-    <div class="coming-soon-notice">
-      <div class="notice-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-      </div>
-      <div class="notice-content">
-        <h3>Función en Desarrollo</h3>
-        <p>Esta funcionalidad estará disponible próximamente. Estamos trabajando en la integración con WhatsApp Business API.</p>
-      </div>
-    </div>
+    <!-- Aviso de desarrollo removido para vista productiva -->
 
     <!-- Contenido Principal con Preview Bloqueado -->
     <div class="content-wrapper">
@@ -76,6 +61,16 @@
         </div>
         
         <div class="card-body">
+          <div v-if="successMessage || errorMessage" class="feedback-banner" :class="{ success: !!successMessage, error: !!errorMessage }">
+            <svg v-if="successMessage" class="feedback-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <svg v-else class="feedback-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <span>{{ successMessage || errorMessage }}</span>
+          </div>
+
           <div class="form-group">
             <label class="form-label">
               <svg class="label-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -83,36 +78,46 @@
               </svg>
               Número de WhatsApp
             </label>
-            <input 
-              v-model="numeroIndividual" 
-              type="tel" 
-              placeholder="Ej: 5491112345678" 
-              class="form-input"
-            />
-            <p class="form-hint">Incluye código de país sin el símbolo +</p>
+              <input 
+                v-model="numeroIndividual" 
+                @input="handleIndividualInput" 
+                type="tel" 
+                placeholder="Completa después de 549..." 
+                class="form-input"
+              />
+              <p class="form-hint">Prefijo 549 pre-cargado. Ingresa el resto del número sin el símbolo +</p>
           </div>
 
           <div class="form-group">
             <label class="form-label">
               <svg class="label-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 1.657-1.343 3-3 3S6 12.657 6 11s1.343-3 3-3 3 1.343 3 3zM12 11c0 1.657 1.343 3 3 3s3-1.343 3-3-1.343-3-3-3-3 1.343-3 3z" />
               </svg>
-              Mensaje
+              Nombre (opcional)
             </label>
-            <textarea 
-              v-model="mensajeIndividual" 
-              placeholder="Escribe tu mensaje aquí..."
-              class="form-textarea"
-              rows="6"
-            ></textarea>
-            <div class="char-counter">{{ mensajeIndividual.length }} / 1000 caracteres</div>
+            <input 
+              v-model="nombreIndividual" 
+              type="text" 
+              placeholder="Ej: Juan"
+              class="form-input"
+            />
           </div>
 
-          <button class="btn-send">
+          <div class="info-template">
+            <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div>
+              <div class="info-title">Se dispara un template preconfigurado</div>
+              <div class="info-text">No es necesario escribir mensaje manual: el Flow de Infobip enviará el template definido.</div>
+            </div>
+          </div>
+
+          <button class="btn-send" :disabled="enviando || !numeroValido" @click="sendIndividual">
             <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
               <path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z" />
             </svg>
-            Enviar Mensaje
+            {{ enviando ? 'Enviando...' : 'Enviar Mensaje' }}
           </button>
         </div>
       </div>
@@ -132,6 +137,15 @@
         </div>
         
         <div class="card-body">
+          <div v-if="successMessageMasivo || errorMessageMasivo" class="feedback-banner" :class="{ success: !!successMessageMasivo, error: !!errorMessageMasivo }">
+            <svg v-if="successMessageMasivo" class="feedback-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <svg v-else class="feedback-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <span>{{ successMessageMasivo || errorMessageMasivo }}</span>
+          </div>
           <div class="form-group">
             <label class="form-label">
               <svg class="label-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -147,7 +161,7 @@
                 <span class="upload-highlight">Haz clic para seleccionar</span> o arrastra un archivo CSV aquí
               </p>
               <p class="upload-hint">El archivo debe contener una columna "numero" con los números de WhatsApp</p>
-              <input type="file" accept=".csv" class="file-input" />
+              <input ref="csvInput" type="file" accept=".csv" class="file-input" @change="onFileSelected" />
             </div>
             <div v-if="numerosCSV.length > 0" class="file-info">
               <svg class="info-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -155,22 +169,22 @@
               </svg>
               <span>{{ numerosCSV.length }} números cargados correctamente</span>
             </div>
+            <div v-if="erroresCSV.length > 0" class="file-info" style="background:#fef2f2;border-color:#fecaca;color:#7f1d1d;">
+              <svg class="info-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <span>{{ erroresCSV.length }} filas con error (se ignoran). Revísalas si es necesario.</span>
+            </div>
           </div>
 
-          <div class="form-group">
-            <label class="form-label">
-              <svg class="label-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-              </svg>
-              Mensaje para todos
-            </label>
-            <textarea 
-              v-model="mensajeMasivo" 
-              placeholder="Este mensaje se enviará a todos los números del archivo CSV..."
-              class="form-textarea"
-              rows="6"
-            ></textarea>
-            <div class="char-counter">{{ mensajeMasivo.length }} / 1000 caracteres</div>
+          <div class="info-template">
+            <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div>
+              <div class="info-title">Se usa template del Flow</div>
+              <div class="info-text">El contenido se define en Infobip Moments; acá solo cargamos los destinatarios.</div>
+            </div>
           </div>
 
           <div v-if="progresoEnvio.total > 0" class="progress-section">
@@ -186,44 +200,165 @@
             </div>
           </div>
 
-          <button class="btn-send">
+          <button class="btn-send" :disabled="enviandoMasivo || numerosCSV.length === 0" @click="sendMasivo">
             <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
               <path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z" />
             </svg>
-            Enviar a Todos ({{ numerosCSV.length }} contactos)
+            {{ enviandoMasivo ? 'Enviando masivo...' : `Enviar a Todos (${numerosCSV.length} contactos)` }}
           </button>
         </div>
       </div>
 
-      <!-- Overlay Bloqueado -->
-      <div class="locked-overlay">
-        <div class="overlay-content">
-          <div class="overlay-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-            </svg>
-          </div>
-          <h3>Funcionalidad Bloqueada</h3>
-          <p>Esta función estará disponible próximamente</p>
-          <div class="overlay-badge">
-            <span class="badge-icon">⏱</span>
-            <span>En desarrollo</span>
-          </div>
-        </div>
-      </div>
+      
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import WhatsappService from '../services/whatsappService'
 
 const modoActivo = ref('individual')
-const numeroIndividual = ref('')
+const numeroIndividual = ref('549')
+const nombreIndividual = ref('')
 const mensajeIndividual = ref('')
 const mensajeMasivo = ref('')
-const numerosCSV = ref([])
+const numerosCSV = ref([]) // [{ phone, firstName? }]
+const erroresCSV = ref([])
 const progresoEnvio = ref({ enviados: 0, total: 0 })
+
+const enviando = ref(false)
+const enviandoMasivo = ref(false)
+const successMessage = ref('')
+const errorMessage = ref('')
+const successMessageMasivo = ref('')
+const errorMessageMasivo = ref('')
+const csvInput = ref(null)
+
+const numeroValido = computed(() => {
+  const n = String(numeroIndividual.value || '').trim()
+  return /^\d{10,15}$/.test(n)
+})
+
+function handleIndividualInput(e) {
+  let digits = String(e.target.value || '').replace(/\D/g, '')
+  if (!digits.startsWith('549')) {
+    digits = '549' + digits.replace(/^549+/, '')
+  }
+  numeroIndividual.value = digits
+}
+
+async function sendIndividual() {
+  try {
+    enviando.value = true
+    successMessage.value = ''
+    errorMessage.value = ''
+    await WhatsappService.sendParticipant({
+      phone: numeroIndividual.value,
+      firstName: nombreIndividual.value
+    })
+  successMessage.value = 'Enviado correctamente.'
+  } catch (e) {
+    console.error('Error enviando WhatsApp:', e)
+    const data = e?.data || e
+    const detail = data?.details?.response || data?.response || null
+    if (detail) {
+      try {
+        errorMessage.value = (data?.error || data?.message || 'Error al enviar') + ' • ' + (detail?.message || JSON.stringify(detail))
+      } catch {
+        errorMessage.value = data?.error || data?.message || 'Error al enviar'
+      }
+    } else {
+      errorMessage.value = data?.error || data?.message || 'Error al enviar'
+    }
+  } finally {
+    enviando.value = false
+  }
+}
+
+function parseCSV(text) {
+  // Soporta separadores "," o ";" y encabezados: numero, nombre (opcional)
+  const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0)
+  if (lines.length === 0) return { ok: [], err: [] }
+  const sep = lines[0].includes(';') && !lines[0].includes(',') ? ';' : ','
+  const header = lines[0].split(sep).map(h => h.trim().toLowerCase())
+  const idxNumero = header.findIndex(h => ['numero', 'phone', 'telefono', 'whatsapp', 'identifier'].includes(h))
+  const idxNombre = header.findIndex(h => ['nombre', 'firstName', 'firstname', 'name'].includes(h))
+  const ok = []
+  const err = []
+  for (let i = 1; i < lines.length; i++) {
+    const cols = lines[i].split(sep).map(c => c.trim())
+    const raw = idxNumero >= 0 ? cols[idxNumero] : cols[0]
+    const name = idxNombre >= 0 ? cols[idxNombre] : ''
+    const digits = String(raw || '').replace(/\D/g, '')
+    if (!digits || digits.length < 10) {
+      err.push({ line: i + 1, value: raw })
+      continue
+    }
+    ok.push({ phone: digits, firstName: name || undefined })
+  }
+  return { ok, err }
+}
+
+async function onFileSelected(e) {
+  const file = e.target?.files?.[0]
+  if (!file) return
+  const text = await file.text()
+  const { ok, err } = parseCSV(text)
+  numerosCSV.value = ok
+  erroresCSV.value = err
+}
+
+async function sendMasivo() {
+  if (numerosCSV.value.length === 0 || enviandoMasivo.value) return
+  enviandoMasivo.value = true
+  successMessageMasivo.value = ''
+  errorMessageMasivo.value = ''
+  const BATCH = 50
+  const all = numerosCSV.value.slice()
+  progresoEnvio.value = { enviados: 0, total: all.length }
+  const fallidos = []
+  try {
+    for (let i = 0; i < all.length; i += BATCH) {
+      const chunk = all.slice(i, i + BATCH)
+      try {
+        await WhatsappService.sendParticipants(chunk)
+      } catch (err) {
+        console.error('Fallo batch', i / BATCH, err)
+        // Si falla el batch, intentamos individual para aislar fallidos
+        for (const p of chunk) {
+          try {
+            await WhatsappService.sendParticipant(p)
+          } catch (e) {
+            fallidos.push(p)
+          }
+          progresoEnvio.value.enviados += 1
+        }
+        continue
+      }
+      progresoEnvio.value.enviados = Math.min(progresoEnvio.value.total, i + chunk.length)
+      // Pequeña pausa para no saturar
+      await new Promise(r => setTimeout(r, 200))
+    }
+    if (fallidos.length > 0) {
+      errorMessageMasivo.value = `Completado con errores: ${fallidos.length} de ${progresoEnvio.value.total} no se enviaron.`
+    } else {
+      successMessageMasivo.value = 'Enviado correctamente.'
+      // Reset para permitir nuevo archivo
+      numerosCSV.value = []
+      erroresCSV.value = []
+      progresoEnvio.value = { enviados: 0, total: 0 }
+      if (csvInput.value) {
+        try { csvInput.value.value = '' } catch {}
+      }
+    }
+  } catch (e) {
+    console.error('Error en envío masivo', e)
+    errorMessageMasivo.value = e?.message || 'Error en envío masivo'
+  } finally {
+    enviandoMasivo.value = false
+  }
+}
 </script>
 
 <style scoped>
@@ -233,6 +368,56 @@ const progresoEnvio = ref({ enviados: 0, total: 0 })
   padding: 2.5rem;
   position: relative;
   min-height: 100vh;
+}
+
+/* Feedback banner */
+.feedback-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+.feedback-banner.success {
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+.feedback-banner.error {
+  background: #fef2f2;
+  color: #7f1d1d;
+  border: 1px solid #fecaca;
+}
+.feedback-icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* Info template alert */
+.info-template {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #065f46;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+}
+.info-template .info-icon {
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+}
+.info-template .info-title {
+  font-weight: 600;
+}
+.info-template .info-text {
+  font-size: 0.95rem;
+  opacity: 0.9;
 }
 
 /* Fondo con olas animadas */

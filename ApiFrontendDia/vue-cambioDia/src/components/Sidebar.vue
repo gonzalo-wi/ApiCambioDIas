@@ -88,6 +88,52 @@
             <span class="nav-text">Disponibilidad Jaula</span>
           </router-link>
         </li>
+
+        <li class="nav-item nav-item-group">
+          <button 
+            @click="toggleGestionFC" 
+            class="nav-link nav-button"
+            :class="{ active: $route.path.startsWith('/panel/gestion-fc') }"
+          >
+            <div class="nav-icon-wrapper">
+              <span class="material-symbols-outlined">
+                water_drop
+              </span>
+            </div>
+            <span class="nav-text">Gestión F/C</span>
+            <svg 
+              class="nav-chevron" 
+              :class="{ rotated: gestionFCOpen }" 
+              xmlns="http://www.w3.org/2000/svg" 
+              viewBox="0 0 24 24" 
+              fill="currentColor"
+            >
+              <path d="M7 10l5 5 5-5z"/>
+            </svg>
+          </button>
+          <transition name="submenu">
+            <ul v-show="gestionFCOpen" class="nav-submenu">
+              <li>
+                <router-link 
+                  to="/panel/gestion-fc/instalacion" 
+                  class="nav-link nav-sublink"
+                  :class="{ active: $route.path === '/panel/gestion-fc/instalacion' }"
+                >
+                  <span class="nav-text">Instalación</span>
+                </router-link>
+              </li>
+              <li>
+                <router-link 
+                  to="/panel/gestion-fc/consultar-token" 
+                  class="nav-link nav-sublink"
+                  :class="{ active: $route.path === '/panel/gestion-fc/consultar-token' }"
+                >
+                  <span class="nav-text">Consultar Token</span>
+                </router-link>
+              </li>
+            </ul>
+          </transition>
+        </li>
       </ul>
     </nav>
 
@@ -95,15 +141,25 @@
     <div class="sidebar-footer">
       <div class="footer-info">
         <p class="footer-text">© 2025 El Jumillano</p>
-        <p class="footer-dev">Desarrollado por <strong>Gonzalo Wiñazki</strong></p>
+        <p class="footer-dev"><strong>G.Wiñazki & L.Peralta</strong></p>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
+import { ref } from 'vue'
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
+const gestionFCOpen = ref(route.path.startsWith('/panel/gestion-fc'))
+
 function abrirVentana() {
   window.open('/ventanaView', 'ventanaCallCenter', 'width=420,height=600,menubar=no,toolbar=no,location=no,status=no')
+}
+
+function toggleGestionFC() {
+  gestionFCOpen.value = !gestionFCOpen.value
 }
 </script>
 
@@ -251,6 +307,58 @@ function abrirVentana() {
 
 .nav-text {
   font-size: 0.95rem;
+}
+
+/* Submenu styles */
+.nav-item-group {
+  flex-direction: column;
+}
+
+.nav-chevron {
+  width: 20px;
+  height: 20px;
+  margin-left: auto;
+  transition: transform 0.3s ease;
+}
+
+.nav-chevron.rotated {
+  transform: rotate(180deg);
+}
+
+.nav-submenu {
+  list-style: none;
+  margin: 0;
+  padding: 0.25rem 0 0.25rem 2.75rem;
+  overflow: hidden;
+}
+
+.nav-sublink {
+  padding: 0.6rem 1rem !important;
+  font-size: 0.88rem !important;
+  border-radius: 8px !important;
+}
+
+.nav-sublink::before {
+  content: '•';
+  margin-right: 0.5rem;
+  color: #94a3b8;
+}
+
+.nav-sublink.active::before {
+  color: #1e40af;
+}
+
+/* Submenu transition */
+.submenu-enter-active,
+.submenu-leave-active {
+  transition: all 0.3s ease;
+  max-height: 200px;
+}
+
+.submenu-enter-from,
+.submenu-leave-to {
+  opacity: 0;
+  max-height: 0;
 }
 
 .sidebar-footer {

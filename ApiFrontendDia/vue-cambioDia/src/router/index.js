@@ -9,6 +9,8 @@ import GenerarTokenView from '../views/GenerarTokenView.vue'
 import WelcomeView from '../views/WelcomeView.vue'
 import WhatsAppView from '../views/WhatsAppView.vue'
 import JaulaView from '../views/JaulaView.vue'
+import GestionFCView from '../views/GestionFCView.vue'
+import ConsultarTokenFCView from '../views/ConsultarTokenFCView.vue'
 
 const routes = [
   { 
@@ -25,7 +27,10 @@ const routes = [
       { path: 'siisa', component: SiisaView },
       { path: 'token', component: GenerarTokenView },
       { path: 'whatsapp', component: WhatsAppView },
-      { path: 'jaula', component: JaulaView }
+      { path: 'jaula', component: JaulaView },
+      { path: 'gestion-fc', redirect: '/panel/gestion-fc/instalacion' },
+      { path: 'gestion-fc/instalacion', component: GestionFCView },
+      { path: 'gestion-fc/consultar-token', component: ConsultarTokenFCView }
     ]
   },
   { path: '/ventanaView', component: VentanaView }

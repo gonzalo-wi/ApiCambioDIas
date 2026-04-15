@@ -84,7 +84,7 @@ export class SiisaService {
   static procesarSemaforo(semaforo) {
     const estilos = SIISA_COLORS[semaforo.color?.toUpperCase?.()] || SIISA_COLORS.ROJO
     // Derivar texto legible del color
-    const textMap = { VERDE: 'Aprobado', AMARILLO: 'Revisar', ROJO: 'Riesgo' }
+    const textMap = { VERDE: 'Normal', AMARILLO: 'A revisar', ROJO: 'Crítica' }
     const text = textMap[semaforo.color?.toUpperCase?.()] || 'Estado'
     return {
       ...semaforo,

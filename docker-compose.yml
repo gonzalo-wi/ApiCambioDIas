@@ -21,6 +21,11 @@ services:
     build: ./proxy-backend
     ports:
       - "3002:3001"
+    environment:
+      INFOBIP_BASE: "https://89ydp1.api.infobip.com"
+      INFOBIP_FLOW_ID: "200000035823248"
+      # Token Infobip (puede ir con o sin el prefijo "App ")
+      INFOBIP_AUTH: "REDACTED"
     restart: unless-stopped
     dns:
       - 8.8.8.8

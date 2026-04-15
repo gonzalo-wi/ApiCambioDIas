@@ -181,7 +181,7 @@
                 </div>
                 <div class="summary-item">
                   <span class="summary-label">Situación</span>
-                  <span class="summary-value small">{{ datosCompletos.semaforo.situacion_maxima_label || datosCompletos.semaforo.situacion }}</span>
+                  <span class="summary-value small">{{ semaforoEstilos.text }}</span>
                 </div>
               </div>
             </div>
@@ -259,45 +259,68 @@
             </div>
           </div>
 
-          <!-- Morosidades Comerciales -->
-          <div class="info-card" v-if="datosCompletos.semaforo.morosidades_comerciales && datosCompletos.semaforo.morosidades_comerciales.length">
-            <div class="card-header-inline">
-              <svg class="card-icon" viewBox="0 -960 960 960" fill="currentColor">
+          
+
+        </div>
+
+        <!-- Morosidades Comerciales (Sección) -->
+        <div v-if="morosidadesComerciales.length" class="deudas-section">
+          <div class="section-header">
+            <h3 class="section-title">
+              <svg class="section-icon" viewBox="0 -960 960 960" fill="currentColor">
                 <path d="M640-520q17 0 28.5-11.5T680-560q0-17-11.5-28.5T640-600q-17 0-28.5 11.5T600-560q0 17 11.5 28.5T640-520Zm-320-80h200v-80H320v80ZM180-120q-34-114-67-227.5T80-580q0-92 64-156t156-64h200q29-38 70.5-59t89.5-21q25 0 42.5 17.5T720-820q0 6-1.5 12t-3.5 11q-4 11-7.5 22.5T702-751l91 91h87v279l-113 37-67 224H480v-80h-80v80H180Z"/>
               </svg>
-              <h3 class="card-title">Morosidades Comerciales</h3>
-              <span class="section-badge">{{ datosCompletos.semaforo.morosidades_comerciales.length }}</span>
-            </div>
-            <div class="card-content">
-              <div class="deudas-grid">
-                <div 
-                  v-for="(moro, idx) in datosCompletos.semaforo.morosidades_comerciales"
-                  :key="idx"
-                  class="deuda-card"
-                >
-                  <div class="deuda-card-header">
-                    <div class="deuda-entidad-info">
-                      <div class="deuda-icon-wrapper">
-                        <svg viewBox="0 -960 960 960" fill="currentColor">
-                          <path d="M160-120v-480l320-240 320 240v480H560v-280H400v280H160Z"/>
-                        </svg>
-                      </div>
-                      <div>
-                        <h4 class="deuda-entidad-name">{{ moro.entidad }}</h4>
-                        <span class="deuda-origen-badge">Categoría {{ moro.categoria_id }} - {{ moro.categoria_nombre }}</span>
-                      </div>
-                    </div>
-                    <div class="deuda-monto-big">Período {{ moro.periodo }}</div>
+              Morosidades Comerciales
+            </h3>
+            <span class="section-badge">{{ morosidadesComerciales.length }} {{ morosidadesComerciales.length === 1 ? 'registro' : 'registros' }}</span>
+          </div>
+
+          <div class="deudas-grid">
+            <div 
+              v-for="(moro, idx) in morosidadesMostrar" 
+              :key="idx" 
+              class="deuda-card"
+            >
+              <div class="deuda-card-header">
+                <div class="deuda-entidad-info">
+                  <div class="deuda-icon-wrapper">
+                    <svg viewBox="0 -960 960 960" fill="currentColor">
+                      <path d="M160-120v-480l320-240 320 240v480H560v-280H400v280H160Z"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 class="deuda-entidad-name">{{ moro.entidad }}</h4>
+                    <span class="deuda-origen-badge">Categoría {{ moro.categoria_id }} - {{ moro.categoria_nombre }}</span>
                   </div>
                 </div>
+                <div class="deuda-monto-big">Período {{ formatPeriodo(moro.periodo) }}</div>
               </div>
-              <div class="info-item" v-if="datosCompletos.semaforo.criterio_aplicado">
-                <span class="info-label-new">Criterio aplicado</span>
-                <span class="info-value-new">{{ datosCompletos.semaforo.criterio_aplicado }}</span>
+
+              <div class="deuda-card-body">
+                <div class="deuda-info-row">
+                  <div class="deuda-info-item" v-if="moro.region">
+                    <span class="deuda-info-label">Región</span>
+                    <span class="deuda-info-value">{{ moro.region }}</span>
+                  </div>
+                  <div class="deuda-info-item" v-if="moro.id_entidad">
+                    <span class="deuda-info-label">ID Entidad</span>
+                    <span class="deuda-info-value">{{ moro.id_entidad }}</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
+          <div v-if="morosidadesComerciales.length > 6" class="ver-mas-container" style="margin-top: 1rem;">
+            <button class="btn btn-outline" @click="toggleMorosidades">
+              {{ mostrarTodasMorosidades ? 'Ver menos' : `Ver más (${morosidadesComerciales.length - 6})` }}
+            </button>
+          </div>
+
+          <div class="info-item" v-if="datosCompletos.semaforo.criterio_aplicado" style="margin-top: 1rem;">
+            <span class="info-label-new">Criterio aplicado</span>
+            <span class="info-value-new">{{ datosCompletos.semaforo.criterio_aplicado }}</span>
+          </div>
         </div>
 
         <!-- Detalle de Deudas BCRA -->
@@ -405,6 +428,18 @@ const semaforoEstilos = computed(() => {
   }
 })
 
+// Morosidades Comerciales toggle
+const mostrarTodasMorosidades = ref(false)
+const morosidadesComerciales = computed(() => datosCompletos.value?.semaforo?.morosidades_comerciales || [])
+const morosidadesMostrar = computed(() => {
+  if (mostrarTodasMorosidades.value) return morosidadesComerciales.value
+  return morosidadesComerciales.value.slice(0, 6)
+})
+
+function toggleMorosidades() {
+  mostrarTodasMorosidades.value = !mostrarTodasMorosidades.value
+}
+
 function limpiarResultados() {
   resultado.value = null
   error.value = ''
@@ -464,6 +499,17 @@ function getSituacionClass(situacion) {
   if (situacion === 2) return 'situacion-riesgo-bajo'
   if (situacion >= 3 && situacion <= 4) return 'situacion-riesgo-medio'
   return 'situacion-riesgo-alto'
+}
+
+function formatPeriodo(periodo) {
+  if (!periodo) return '-'
+  const str = String(periodo).replace('/', '')
+  if (/^\d{6}$/.test(str)) {
+    const year = str.slice(0, 4)
+    const month = str.slice(4, 6)
+    return `${month}/${year}`
+  }
+  return periodo
 }
 </script>
 
