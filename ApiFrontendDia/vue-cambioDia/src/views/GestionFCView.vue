@@ -492,7 +492,11 @@
               <span class="material-symbols-outlined resumen-item-icon">calendar_month</span>
               <div>
                 <span class="resumen-label">Fecha Visita</span>
-                <span class="resumen-value">{{ datosCliente?.fechaProxVisita || 'N/A' }}</span>
+                <input
+                  type="date"
+                  v-model="formulario.fechaVisita"
+                  class="input input-fecha-visita"
+                />
               </div>
             </div>
             <div class="resumen-item">
@@ -663,7 +667,8 @@ const formulario = ref({
   sexo: '',
   cantidadPie: 0,
   cantidadMesada: 0,
-  email: ''
+  email: '',
+  fechaVisita: ''
 })
 
 // Computed property para el total de dispensers
@@ -816,7 +821,8 @@ async function generarTerminos() {
     sessionIdGenerado.value = sessionId
     
     const data = await apiClient.post(API_CONFIG.ENDPOINTS.CONTACT_CENTER_SESSION, {
-      sessionId
+      sessionId,
+      conversationId: sessionId
     })
 
     datosTerminos.value = data
@@ -898,6 +904,11 @@ function volverPaso3() {
 
 // Paso 4: Tipo Dispenser
 function continuarPaso5() {
+  // Pre-llenar fechaVisita desde datosCliente (DD/MM/YYYY → YYYY-MM-DD)
+  if (datosCliente.value?.fechaProxVisita) {
+    const [dia, mes, anio] = datosCliente.value.fechaProxVisita.split('/')
+    formulario.value.fechaVisita = `${anio}-${mes}-${dia}`
+  }
   pasoActual.value = 5
 }
 
@@ -930,8 +941,8 @@ async function verificarJaula() {
     return
   }
 
-  if (!datosCliente.value?.fechaProxVisita) {
-    errorPaso5.value = 'No se encontró la fecha de próxima visita del cliente'
+  if (!formulario.value.fechaVisita) {
+    errorPaso5.value = 'Por favor ingrese una fecha de visita'
     return
   }
 
@@ -946,10 +957,12 @@ async function verificarJaula() {
     const disponibilidad = await consultarDisponibilidadJaula(datosCliente.value.idReparto)
     datosJaula.value = disponibilidad
 
-    // Luego intentamos agendar la visita
+    // Luego intentamos agendar la visita (convertir YYYY-MM-DD → DD/MM/YYYY para agendarVisita)
+    const [anio, mes, dia] = formulario.value.fechaVisita.split('-')
+    const fechaDDMMYYYY = `${dia}/${mes}/${anio}`
     const resultado = await agendarVisita(
       datosCliente.value.idReparto,
-      datosCliente.value.fechaProxVisita,
+      fechaDDMMYYYY,
       totalDispensers.value
     )
 
@@ -963,9 +976,8 @@ async function verificarJaula() {
     // Si el agendamiento fue exitoso, crear la entrega via contact-center
     console.log('📦 Creando entrega contact-center...')
     
-    // Convertir fecha de DD/MM/YYYY a YYYY-MM-DD
-    const [dia, mes, anio] = datosCliente.value.fechaProxVisita.split('/')
-    const fechaFormateada = `${anio}-${mes}-${dia}`
+    // Usar fechaVisita ya en formato YYYY-MM-DD
+    const fechaFormateada = formulario.value.fechaVisita
     
     const entrega = await apiClient.post(API_CONFIG.ENDPOINTS.DELIVERIES_CONTACT_CENTER, {
       nro_cta: String(datosCliente.value.codCliente),
@@ -978,6 +990,7 @@ async function verificarJaula() {
       tipo_entrega: 'Instalacion',
       entregado_por: 'Repartidor',
       session_id: formulario.value.idConversacion,
+      conversation_id: formulario.value.idConversacion,
       fecha_accion: fechaFormateada
     })
 
@@ -2125,6 +2138,24 @@ function formatearFecha(fechaISO) {
   font-size: 0.85rem;
   font-weight: 600;
   color: #334155;
+}
+
+.input-fecha-visita {
+  margin-top: 2px;
+  padding: 4px 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #f8fafc;
+  cursor: pointer;
+}
+
+.input-fecha-visita:focus {
+  outline: none;
+  border-color: #3b82f6;
+  background: #fff;
 }
 
 @media (max-width: 640px) {
