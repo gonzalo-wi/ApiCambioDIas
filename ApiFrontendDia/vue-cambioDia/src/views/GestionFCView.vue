@@ -485,7 +485,12 @@
               <span class="material-symbols-outlined resumen-item-icon">local_shipping</span>
               <div>
                 <span class="resumen-label">Reparto</span>
-                <span class="resumen-value">{{ datosCliente?.idReparto || 'N/A' }}</span>
+                <input
+                  type="text"
+                  v-model="formulario.idReparto"
+                  class="input input-fecha-visita"
+                  placeholder="Nro. reparto"
+                />
               </div>
             </div>
             <div class="resumen-item">
@@ -668,7 +673,8 @@ const formulario = ref({
   cantidadPie: 0,
   cantidadMesada: 0,
   email: '',
-  fechaVisita: ''
+  fechaVisita: '',
+  idReparto: ''
 })
 
 // Computed property para el total de dispensers
@@ -909,6 +915,10 @@ function continuarPaso5() {
     const [dia, mes, anio] = datosCliente.value.fechaProxVisita.split('/')
     formulario.value.fechaVisita = `${anio}-${mes}-${dia}`
   }
+  // Pre-llenar idReparto desde datosCliente
+  if (datosCliente.value?.idReparto) {
+    formulario.value.idReparto = String(datosCliente.value.idReparto)
+  }
   pasoActual.value = 5
 }
 
@@ -936,8 +946,8 @@ async function copiarTokenEntrega() {
 }
 
 async function verificarJaula() {
-  if (!datosCliente.value?.idReparto) {
-    errorPaso5.value = 'No se encontró el número de reparto del cliente'
+  if (!formulario.value.idReparto) {
+    errorPaso5.value = 'Por favor ingrese el número de reparto'
     return
   }
 
@@ -954,14 +964,14 @@ async function verificarJaula() {
 
   try {
     // Primero consultamos disponibilidad para mostrar al usuario
-    const disponibilidad = await consultarDisponibilidadJaula(datosCliente.value.idReparto)
+    const disponibilidad = await consultarDisponibilidadJaula(formulario.value.idReparto)
     datosJaula.value = disponibilidad
 
     // Luego intentamos agendar la visita (convertir YYYY-MM-DD → DD/MM/YYYY para agendarVisita)
     const [anio, mes, dia] = formulario.value.fechaVisita.split('-')
     const fechaDDMMYYYY = `${dia}/${mes}/${anio}`
     const resultado = await agendarVisita(
-      datosCliente.value.idReparto,
+      formulario.value.idReparto,
       fechaDDMMYYYY,
       totalDispensers.value
     )
@@ -981,7 +991,7 @@ async function verificarJaula() {
     
     const entrega = await apiClient.post(API_CONFIG.ENDPOINTS.DELIVERIES_CONTACT_CENTER, {
       nro_cta: String(datosCliente.value.codCliente),
-      nro_rto: String(datosCliente.value.idReparto),
+      nro_rto: formulario.value.idReparto,
       email: formulario.value.email,
       tipos: {
         P: formulario.value.cantidadPie,
@@ -1020,7 +1030,9 @@ function resetearFormulario() {
     sexo: '',
     cantidadPie: 0,
     cantidadMesada: 0,
-    email: ''
+    email: '',
+    fechaVisita: '',
+    idReparto: ''
   }
   datosCliente.value = null
   clienteNoEncontrado.value = false

@@ -134,6 +134,17 @@
             </ul>
           </transition>
         </li>
+
+        <li class="nav-item">
+          <router-link to="/panel/mora-clientes" class="nav-link" :class="{ active: $route.path === '/panel/mora-clientes' }">
+            <div class="nav-icon-wrapper">
+              <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="currentColor">
+                <path d="M444-200h70v-50q50-9 86-39t36-89q0-42-24-77t-96-61q-60-20-83-35t-23-41q0-26 18.5-41t53.5-15q32 0 50 15.5t26 38.5l64-26q-11-35-36.5-60T536-710v-50h-70v50q-50 11-78 44t-28 74q0 47 27.5 76t86.5 50q63 23 87.5 41t24.5 47q0 33-23.5 55T500-300q-35 0-60.5-21T410-376l-66 26q14 48 43.5 77.5T444-238v38Zm36 160q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-40Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"/>
+              </svg>
+            </div>
+            <span class="nav-text">Mora de Clientes</span>
+          </router-link>
+        </li>
       </ul>
     </nav>
 

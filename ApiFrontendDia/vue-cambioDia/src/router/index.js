@@ -11,6 +11,7 @@ import WhatsAppView from '../views/WhatsAppView.vue'
 import JaulaView from '../views/JaulaView.vue'
 import GestionFCView from '../views/GestionFCView.vue'
 import ConsultarTokenFCView from '../views/ConsultarTokenFCView.vue'
+import MoraClientesView from '../views/MoraClientesView.vue'
 
 const routes = [
   { 
@@ -30,7 +31,8 @@ const routes = [
       { path: 'jaula', component: JaulaView },
       { path: 'gestion-fc', redirect: '/panel/gestion-fc/instalacion' },
       { path: 'gestion-fc/instalacion', component: GestionFCView },
-      { path: 'gestion-fc/consultar-token', component: ConsultarTokenFCView }
+      { path: 'gestion-fc/consultar-token', component: ConsultarTokenFCView },
+      { path: 'mora-clientes', component: MoraClientesView }
     ]
   },
   { path: '/ventanaView', component: VentanaView }
