@@ -252,7 +252,7 @@ app.get('/health', (req, res) => {
 })
 
 // ========== PROXY PARA DISPENSER OPERATIONS (192.168.0.250:8095) ==========
-const DISPENSER_OPS_BASE = 'http://192.168.0.250:8095'
+const DISPENSER_OPS_BASE = process.env.DISPENSER_OPS_BASE || 'http://192.168.0.250:8095'
 
 // Consultar token de entrega FC por cuenta y fecha
 app.get('/api/consultar-token-fc', async (req, res) => {
@@ -578,6 +578,130 @@ app.post('/api/whatsapp/participants', async (req, res) => {
       details: errorDetails
     })
   }
+})
+
+// ========== PROXY PARA DELIVERIES CRUD (192.168.0.250:8095) ==========
+const DELIVERIES_BASE = `${DISPENSER_OPS_BASE}/dispenser-operations/api/v1/deliveries`
+const DISPENSER_OPS_TOKEN = process.env.DISPENSER_OPS_TOKEN || ''
+
+const deliveriesAuthHeader = () => {
+  return DISPENSER_OPS_TOKEN ? { Authorization: `Bearer ${DISPENSER_OPS_TOKEN}` } : {}
+}
+
+const proxyError = (error, res, label) => {
+  const details = {
+    message: error.message,
+    code: error.code,
+    response: error.response?.data,
+    status: error.response?.status
+  }
+  console.error(`❌ ${label}:`, details)
+  res.status(error.response?.status || 500).json({ error: label, details })
+}
+
+// GET /api/deliveries  — listado paginado con filtros
+app.get('/api/deliveries', async (req, res) => {
+  try {
+    console.log('📋 Listando entregas:', req.query)
+    const result = await axios.get(DELIVERIES_BASE, {
+      params: req.query,
+      headers: deliveriesAuthHeader(),
+      timeout: 15000
+    })
+    res.json(result.data)
+  } catch (error) { proxyError(error, res, 'Error al listar entregas') }
+})
+
+// GET /api/deliveries/by-rto
+app.get('/api/deliveries/by-rto', async (req, res) => {
+  try {
+    console.log('🔍 Buscando entregas por RTO:', req.query)
+    const result = await axios.get(`${DELIVERIES_BASE}/by-rto`, {
+      params: req.query,
+      headers: deliveriesAuthHeader(),
+      timeout: 15000
+    })
+    res.json(result.data)
+  } catch (error) { proxyError(error, res, 'Error al buscar entregas por RTO') }
+})
+
+// GET /api/deliveries/by-cta
+app.get('/api/deliveries/by-cta', async (req, res) => {
+  try {
+    console.log('🔍 Buscando entregas por cuenta:', req.query)
+    const result = await axios.get(`${DELIVERIES_BASE}/by-cta`, {
+      params: req.query,
+      headers: deliveriesAuthHeader(),
+      timeout: 15000
+    })
+    res.json(result.data)
+  } catch (error) { proxyError(error, res, 'Error al buscar entregas por cuenta') }
+})
+
+// GET /api/deliveries/infobip/pending
+app.get('/api/deliveries/infobip/pending', async (req, res) => {
+  try {
+    console.log('🔔 Pendientes Infobip por cuenta:', req.query)
+    const result = await axios.get(`${DELIVERIES_BASE}/infobip/pending`, {
+      params: req.query,
+      headers: deliveriesAuthHeader(),
+      timeout: 15000
+    })
+    res.json(result.data)
+  } catch (error) { proxyError(error, res, 'Error al consultar pendientes Infobip') }
+})
+
+// GET /api/deliveries/:id
+app.get('/api/deliveries/:id', async (req, res) => {
+  try {
+    const { id } = req.params
+    console.log('🔍 Obteniendo entrega ID:', id)
+    const result = await axios.get(`${DELIVERIES_BASE}/${id}`, {
+      headers: deliveriesAuthHeader(),
+      timeout: 10000
+    })
+    res.json(result.data)
+  } catch (error) { proxyError(error, res, 'Error al obtener entrega') }
+})
+
+// POST /api/deliveries
+app.post('/api/deliveries', async (req, res) => {
+  try {
+    console.log('📦 Creando entrega:', req.body)
+    const result = await axios.post(DELIVERIES_BASE, req.body, {
+      headers: { 'Content-Type': 'application/json', ...deliveriesAuthHeader() },
+      timeout: 15000
+    })
+    console.log('✅ Entrega creada:', result.data)
+    res.status(201).json(result.data)
+  } catch (error) { proxyError(error, res, 'Error al crear entrega') }
+})
+
+// PUT /api/deliveries/:id
+app.put('/api/deliveries/:id', async (req, res) => {
+  try {
+    const { id } = req.params
+    console.log('✏️ Actualizando entrega ID:', id)
+    const result = await axios.put(`${DELIVERIES_BASE}/${id}`, req.body, {
+      headers: { 'Content-Type': 'application/json', ...deliveriesAuthHeader() },
+      timeout: 15000
+    })
+    console.log('✅ Entrega actualizada:', result.data)
+    res.json(result.data)
+  } catch (error) { proxyError(error, res, 'Error al actualizar entrega') }
+})
+
+// DELETE /api/deliveries/:id
+app.delete('/api/deliveries/:id', async (req, res) => {
+  try {
+    const { id } = req.params
+    console.log('🗑️ Eliminando entrega ID:', id)
+    const result = await axios.delete(`${DELIVERIES_BASE}/${id}`, {
+      headers: deliveriesAuthHeader(),
+      timeout: 10000
+    })
+    res.json(result.data)
+  } catch (error) { proxyError(error, res, 'Error al eliminar entrega') }
 })
 
 app.listen(3001, () => {
