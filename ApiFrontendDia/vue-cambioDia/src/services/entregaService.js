@@ -1,43 +1,47 @@
 import { apiClient } from './api.client'
+import { API_CONFIG } from '@/config/api.config'
 
-/**
- * Crea una nueva entrega de dispenser
- * @param {Object} datos - Datos de la entrega
- * @param {string} datos.nro_cta - Número de cuenta (codCliente)
- * @param {string} datos.nro_rto - Número de reparto
- * @param {string} datos.fecha_accion - Fecha de entrega (YYYY-MM-DD)
- * @param {number} datos.cantidad - Cantidad de dispensers
- * @returns {Promise<Object>} Datos de la entrega creada con el token
- */
-export async function crearEntrega({ nro_cta, nro_rto, fecha_accion, cantidad }) {
-  try {
-    console.log('📦 Creando entrega:', { nro_cta, nro_rto, fecha_accion, cantidad })
-    
-    const data = await apiClient.post('/api/entregas', {
-      nro_cta,
-      nro_rto,
-      estado: 'Pendiente',
-      tipo_entrega: 'Instalacion',
-      fecha_accion,
-      dispensers: [],
-      cantidad
-    })
+const EP = API_CONFIG.ENDPOINTS
 
-    console.log('✅ Entrega creada:', data)
-    return data
-  } catch (error) {
-    console.error('❌ Error creando entrega:', error)
-    
-    if (error.response) {
-      throw new Error(`Error del servidor: ${error.response.status}`)
-    } else if (error.request) {
-      throw new Error('No se pudo conectar con el servidor de entregas')
-    } else {
-      throw error
-    }
-  }
+export async function listarEntregas(params = {}) {
+  return apiClient.get(EP.DELIVERIES, params)
+}
+
+export async function obtenerEntrega(id) {
+  return apiClient.get(`${EP.DELIVERIES}/${id}`)
+}
+
+export async function crearEntrega(body) {
+  return apiClient.post(EP.DELIVERIES, body)
+}
+
+export async function actualizarEntrega(id, body) {
+  return apiClient.put(`${EP.DELIVERIES}/${id}`, body)
+}
+
+export async function eliminarEntrega(id) {
+  return apiClient.delete(`${EP.DELIVERIES}/${id}`)
+}
+
+export async function buscarPorRto(params = {}) {
+  return apiClient.get(EP.DELIVERIES_BY_RTO, params)
+}
+
+export async function buscarPorCta(params = {}) {
+  return apiClient.get(EP.DELIVERIES_BY_CTA, params)
+}
+
+export async function pendientesPorCta(nro_cta) {
+  return apiClient.get(EP.DELIVERIES_INFOBIP_PENDING, { nro_cta })
 }
 
 export default {
-  crearEntrega
+  listarEntregas,
+  obtenerEntrega,
+  crearEntrega,
+  actualizarEntrega,
+  eliminarEntrega,
+  buscarPorRto,
+  buscarPorCta,
+  pendientesPorCta,
 }

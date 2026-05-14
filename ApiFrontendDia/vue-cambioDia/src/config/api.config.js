@@ -40,6 +40,12 @@ export const API_CONFIG = {
     // Crear entrega contact-center (instalación)
     DELIVERIES_CONTACT_CENTER: '/api/v1/deliveries/contact-center',
 
+    // Entregas CRUD
+    DELIVERIES: '/api/deliveries',
+    DELIVERIES_BY_RTO: '/api/deliveries/by-rto',
+    DELIVERIES_BY_CTA: '/api/deliveries/by-cta',
+    DELIVERIES_INFOBIP_PENDING: '/api/deliveries/infobip/pending',
+
     // WhatsApp - Infobip Moments
     WHATSAPP_PARTICIPANTS: '/api/whatsapp/participants',
   },

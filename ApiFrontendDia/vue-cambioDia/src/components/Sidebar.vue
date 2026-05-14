@@ -131,9 +131,19 @@
                   <span class="nav-text">Consultar Token</span>
                 </router-link>
               </li>
+              <li>
+                <router-link 
+                  to="/panel/entregas" 
+                  class="nav-link nav-sublink"
+                  :class="{ active: $route.path === '/panel/entregas' }"
+                >
+                  <span class="nav-text">Entregas</span>
+                </router-link>
+              </li>
             </ul>
           </transition>
         </li>
+
 
         <li class="nav-item">
           <router-link to="/panel/mora-clientes" class="nav-link" :class="{ active: $route.path === '/panel/mora-clientes' }">

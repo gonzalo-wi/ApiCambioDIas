@@ -12,6 +12,7 @@ import JaulaView from '../views/JaulaView.vue'
 import GestionFCView from '../views/GestionFCView.vue'
 import ConsultarTokenFCView from '../views/ConsultarTokenFCView.vue'
 import MoraClientesView from '../views/MoraClientesView.vue'
+import EntregasView from '../views/EntregasView.vue'
 
 const routes = [
   { 
@@ -32,7 +33,8 @@ const routes = [
       { path: 'gestion-fc', redirect: '/panel/gestion-fc/instalacion' },
       { path: 'gestion-fc/instalacion', component: GestionFCView },
       { path: 'gestion-fc/consultar-token', component: ConsultarTokenFCView },
-      { path: 'mora-clientes', component: MoraClientesView }
+      { path: 'mora-clientes', component: MoraClientesView },
+      { path: 'entregas', component: EntregasView },
     ]
   },
   { path: '/ventanaView', component: VentanaView }
