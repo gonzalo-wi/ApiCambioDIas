@@ -235,7 +235,7 @@
               <span class="tm-count">
                 <strong>{{ clientesFiltrados.length }}</strong> / {{ clientes.length }} registros
               </span>
-              <span class="tm-page">Página {{ paginaActual }}</span>
+              <span class="tm-page">Página {{ paginaActual }} / {{ totalPaginas }}</span>
             </div>
           </div>
 
@@ -256,7 +256,7 @@
                 </tr>
               </thead>
               <tbody>
-                <template v-for="c in clientesFiltrados" :key="c.id">
+                <template v-for="c in clientesPagina" :key="c.id">
                   <tr
                     class="dr"
                     :class="[`sev-${sevLevel(c.dias_mora)}`, { open: expandido === c.id }]"
@@ -369,19 +369,21 @@
           </div>
 
           <!-- Paginación -->
-          <div class="pag">
-            <button class="pag-btn" :disabled="paginaActual <= 1 || cargando" @click="buscar(paginaActual - 1)">
+          <div v-if="totalPaginas > 1" class="pag">
+            <button class="pag-btn" :disabled="paginaActual <= 1" @click="paginaActual--">
               <svg viewBox="0 0 24 24" fill="currentColor" width="15" height="15"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6z"/></svg>
               Anterior
             </button>
             <div class="pag-indicator">
-              <span class="pag-num">{{ paginaActual }}</span>
+              <span class="pag-num">{{ paginaActual }} / {{ totalPaginas }}</span>
             </div>
-            <button class="pag-btn" :disabled="cargando || !hayMas" @click="buscar(paginaActual + 1)">
+            <button class="pag-btn" :disabled="!hayMas" @click="paginaActual++">
               Siguiente
               <svg viewBox="0 0 24 24" fill="currentColor" width="15" height="15"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg>
             </button>
           </div>
+
+
         </div>
       </transition>
 
@@ -413,7 +415,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import axios from 'axios'
 
 const API_BASE = 'http://192.168.0.251:8083'
@@ -443,7 +445,7 @@ const cargando    = ref(false)
 const error       = ref(null)
 const consultado  = ref(false)
 const paginaActual = ref(1)
-const hayMas      = ref(true)
+const PAGE_SIZE   = 50
 
 const estadoLabel = computed(() =>
   estadoOpts.find(o => o.value === filtros.value.estado)?.label ?? 'Todos'
@@ -459,6 +461,16 @@ const clientesFiltrados = computed(() => {
     String(c.nrocta ?? '').includes(q)
   )
 })
+
+const totalPaginas = computed(() => Math.max(1, Math.ceil(clientesFiltrados.value.length / PAGE_SIZE)))
+const hayMas       = computed(() => paginaActual.value < totalPaginas.value)
+
+const clientesPagina = computed(() => {
+  const start = (paginaActual.value - 1) * PAGE_SIZE
+  return clientesFiltrados.value.slice(start, start + PAGE_SIZE)
+})
+
+watch(busquedaLocal, () => { paginaActual.value = 1 })
 
 const totalDeuda = computed(() =>
   clientes.value.reduce((a, c) => a + Number(c.saldo_pendiente || 0), 0)
@@ -519,8 +531,7 @@ function exportar() {
   URL.revokeObjectURL(a.href)
 }
 
-async function buscar(page = filtros.value.page) {
-  filtros.value.page = page
+async function buscar() {
   cargando.value    = true
   error.value       = null
   clientes.value    = []
@@ -531,21 +542,41 @@ async function buscar(page = filtros.value.page) {
 
   try {
     const params = {
-      page: filtros.value.page,
       mora_desde: filtros.value.mora_desde,
       mora_hasta: filtros.value.mora_hasta,
     }
     if (filtros.value.estado) params.estado = filtros.value.estado
 
     const { data } = await axios.get(
-      `${API_BASE}/api/clientes/cuenta-corriente-deuda-all`,
+      `${API_BASE}/api/clientes/cuenta-corriente-deuda`,
       { params }
     )
 
     if (data?.status === 'success') {
-      clientes.value   = data.data?.data ?? []
-      paginaActual.value = data.data?.current_page ?? page
-      hayMas.value     = (data.data?.data ?? []).length > 0
+      // Aplanar: una fila por comprobante con datos del cliente adjuntos
+      const lista = (data.data ?? []).flatMap(cliente =>
+        (cliente.comprobantes ?? []).map(comp => ({
+          nrocta:            cliente.nrocta,
+          Nombre:            cliente.Nombre,
+          Direcc:            cliente.Direcc,
+          NrCUIT:            cliente.NrCUIT,
+          Telefn:            cliente.Telefn,
+          TeMovil:           cliente.TeMovil,
+          email:             cliente.email,
+          fecha_ultimo_pago: cliente.fecha_ultimo_pago,
+          id:                comp.id,
+          codapl:            comp.codapl,
+          nroapl:            comp.nroapl,
+          fecha_comprobante: comp.fecha_comprobante,
+          saldo_original:    comp.saldo_original,
+          saldo_pendiente:   comp.saldo_pendiente,
+          estado:            comp.estado,
+          dias_mora:         comp.dias_mora,
+          bucket_mora:       comp.bucket_mora,
+        }))
+      )
+      clientes.value   = lista
+      paginaActual.value = 1
     } else {
       error.value = 'La API devolvió un estado inesperado.'
     }

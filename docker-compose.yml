@@ -24,7 +24,9 @@ services:
     environment:
       INFOBIP_BASE: "https://89ydp1.api.infobip.com"
       INFOBIP_FLOW_ID: "200000035823248"
-      INFOBIP_AUTH: ""
+      INFOBIP_AUTH: "INFOBIP_AUTH_REMOVED"
+      DISPENSER_OPS_BASE: "http://192.168.0.250:8095"
+      DISPENSER_OPS_TOKEN: ""
     restart: unless-stopped
     dns:
       - 8.8.8.8
