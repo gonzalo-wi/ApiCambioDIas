@@ -57,17 +57,6 @@
         </li>
 
         <li class="nav-item">
-          <router-link to="/panel/token" class="nav-link" :class="{ active: $route.path === '/panel/token' }">
-            <div class="nav-icon-wrapper">
-              <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
-              </svg>
-            </div>
-            <span class="nav-text">Generar Token</span>
-          </router-link>
-        </li>
-
-        <li class="nav-item">
           <router-link to="/panel/whatsapp" class="nav-link" :class="{ active: $route.path === '/panel/whatsapp' }">
             <div class="nav-icon-wrapper">
               <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">

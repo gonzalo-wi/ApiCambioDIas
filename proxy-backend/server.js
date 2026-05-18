@@ -704,6 +704,19 @@ app.delete('/api/deliveries/:id', async (req, res) => {
   } catch (error) { proxyError(error, res, 'Error al eliminar entrega') }
 })
 
+// PATCH /api/v1/deliveries/:id/cancel
+app.patch('/api/v1/deliveries/:id/cancel', async (req, res) => {
+  try {
+    const { id } = req.params
+    console.log('🚫 Cancelando entrega ID:', id)
+    const result = await axios.patch(`${DELIVERIES_BASE}/${id}/cancel`, null, {
+      headers: deliveriesAuthHeader(),
+      timeout: 10000
+    })
+    res.json(result.data)
+  } catch (error) { proxyError(error, res, 'Error al cancelar entrega') }
+})
+
 app.listen(3001, () => {
   console.log('Proxy server corriendo en http://localhost:3001')
 })

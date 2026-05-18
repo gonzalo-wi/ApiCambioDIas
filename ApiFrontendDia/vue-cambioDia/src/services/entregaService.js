@@ -23,6 +23,10 @@ export async function eliminarEntrega(id) {
   return apiClient.delete(`${EP.DELIVERIES}/${id}`)
 }
 
+export async function cancelarEntrega(id) {
+  return apiClient.patch(`/api/v1/deliveries/${id}/cancel`)
+}
+
 export async function buscarPorRto(params = {}) {
   return apiClient.get(EP.DELIVERIES_BY_RTO, params)
 }
@@ -41,6 +45,7 @@ export default {
   crearEntrega,
   actualizarEntrega,
   eliminarEntrega,
+  cancelarEntrega,
   buscarPorRto,
   buscarPorCta,
   pendientesPorCta,

@@ -142,6 +142,9 @@
                 <button class="btn-icon" title="Editar" @click="abrirModalEditar(e)">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="15" height="15"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
                 </button>
+                <button v-if="e.estado !== 'Cancelado'" class="btn-icon btn-cancel-action" title="Cancelar" @click="confirmarCancelar(e)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="15" height="15"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636L5.636 18.364M18.364 18.364L5.636 5.636"/></svg>
+                </button>
                 <button class="btn-icon btn-delete" title="Eliminar" @click="confirmarEliminar(e)">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="15" height="15"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                 </button>
@@ -278,6 +281,29 @@
       </div>
     </transition>
 
+    <!-- ══ MODAL CONFIRMAR CANCELAR ════════════════════════════════════ -->
+    <transition name="modal-fade">
+      <div v-if="modalCancelar" class="modal-overlay" @mousedown.self="modalCancelar = null">
+        <div class="modal modal-sm">
+          <div class="modal-header modal-header-warning">
+            <h2>Confirmar cancelación</h2>
+            <button class="modal-close" @click="modalCancelar = null">✕</button>
+          </div>
+          <div class="modal-body">
+            <p>¿Cancelar la entrega <strong>#{{ modalCancelar?.id }}</strong> ({{ modalCancelar?.nro_cta }})?</p>
+            <p class="delete-warn">El estado cambiará a <strong>Cancelado</strong>.</p>
+            <div class="mform-actions">
+              <button class="btn-cancel" @click="modalCancelar = null">Volver</button>
+              <button class="btn-cancel-confirm" @click="cancelar" :disabled="cancelando">
+                <svg v-if="cancelando" class="spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" width="14" height="14"><circle cx="12" cy="12" r="10" stroke-width="3" stroke-dasharray="31.4" stroke-dashoffset="10" stroke-linecap="round"/></svg>
+                {{ cancelando ? 'Cancelando...' : 'Sí, cancelar' }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </transition>
+
     <!-- ══ MODAL CONFIRMAR ELIMINAR ════════════════════════════════════ -->
     <transition name="modal-fade">
       <div v-if="modalEliminar" class="modal-overlay" @mousedown.self="modalEliminar = null">
@@ -310,7 +336,8 @@ import {
   listarEntregas,
   crearEntrega,
   actualizarEntrega,
-  eliminarEntrega
+  eliminarEntrega,
+  cancelarEntrega
 } from '@/services/entregaService'
 
 // ── Estado ──────────────────────────────────────────────────────────────
@@ -331,6 +358,10 @@ const formData = ref(formularioVacio())
 // Modal eliminar
 const modalEliminar = ref(null)
 const eliminando = ref(false)
+
+// Modal cancelar
+const modalCancelar = ref(null)
+const cancelando = ref(false)
 
 // ── KPIs ────────────────────────────────────────────────────────────────
 const pendientesCnt = computed(() => entregas.value.filter(e => e.estado === 'Pendiente').length)
@@ -471,6 +502,26 @@ async function eliminar() {
     eliminando.value = false
   }
 }
+
+// ── Modal cancelar ───────────────────────────────────────────────────────
+function confirmarCancelar(entrega) {
+  modalCancelar.value = entrega
+}
+
+async function cancelar() {
+  if (!modalCancelar.value) return
+  cancelando.value = true
+  try {
+    await cancelarEntrega(modalCancelar.value.id)
+    modalCancelar.value = null
+    await buscar()
+  } catch (e) {
+    error.value = e.message || 'Error al cancelar la entrega'
+    modalCancelar.value = null
+  } finally {
+    cancelando.value = false
+  }
+}
 </script>
 
 <style scoped>
@@ -573,6 +624,7 @@ async function eliminar() {
 .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 1.5rem; border-bottom: 1px solid #e2e8f0; }
 .modal-header h2 { font-size: 1.1rem; font-weight: 700; color: #1e293b; margin: 0; }
 .modal-header-danger h2 { color: #b91c1c; }
+.modal-header-warning h2 { color: #b45309; }
 .modal-close { background: none; border: none; font-size: 1.1rem; cursor: pointer; color: #94a3b8; padding: 0.2rem 0.5rem; border-radius: 6px; transition: color 0.15s; }
 .modal-close:hover { color: #334155; }
 .modal-body { padding: 1.5rem; }
@@ -605,6 +657,11 @@ async function eliminar() {
 .btn-delete-confirm { display: flex; align-items: center; gap: 0.4rem; padding: 0.6rem 1.4rem; background: #dc2626; color: white; border: none; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; }
 .btn-delete-confirm:hover:not(:disabled) { background: #b91c1c; }
 .btn-delete-confirm:disabled { opacity: 0.6; cursor: default; }
+.btn-cancel-confirm { display: flex; align-items: center; gap: 0.4rem; padding: 0.6rem 1.4rem; background: #d97706; color: white; border: none; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; }
+.btn-cancel-confirm:hover:not(:disabled) { background: #b45309; }
+.btn-cancel-confirm:disabled { opacity: 0.6; cursor: default; }
+.btn-icon.btn-cancel-action { color: #d97706; }
+.btn-icon.btn-cancel-action:hover { background: #fef3c7; color: #b45309; }
 .delete-warn { font-size: 0.85rem; color: #b91c1c; margin: 0.25rem 0 1rem; }
 
 /* Transitions */
