@@ -275,10 +275,25 @@
           <strong>Cliente:</strong> {{ datosCliente.nombre }} (DNI: {{ formulario.dni }})
         </div>
 
+        <div class="form-group">
+          <label class="label">
+            <span class="material-symbols-outlined label-icon-mat">payments</span>
+            Reparto de entrega
+          </label>
+          <input
+            v-model.number="deliveryMonto"
+            type="number"
+            class="input"
+            placeholder="Ej: 250"
+            min="0"
+            :disabled="!!datosTerminos"
+          />
+        </div>
+
         <button
           @click="generarTerminos"
           class="btn btn-primary"
-          :disabled="cargandoPaso3 || datosTerminos"
+          :disabled="cargandoPaso3 || datosTerminos || !deliveryMonto"
         >
           <svg v-if="!cargandoPaso3" class="btn-icon" viewBox="0 -960 960 960" fill="currentColor">
             <path d="M320-240h320v-80H320v80Zm0-160h320v-80H320v80ZM240-80q-33 0-56.5-23.5T160-160v-640q0-33 23.5-56.5T240-880h320l240 240v480q0 33-23.5 56.5T740-80H240Zm280-520v-200H240v640h500v-440H520ZM240-800v200-200 640-640Z"/>
@@ -802,6 +817,7 @@ function volverPaso1() {
 function volverPaso2() {
   pasoActual.value = 2
   datosTerminos.value = null
+  deliveryMonto.value = null
   errorPaso3.value = ''
 }
 
@@ -809,6 +825,7 @@ function volverPaso2() {
 const cargandoPaso3 = ref(false)
 const errorPaso3 = ref('')
 const datosTerminos = ref(null)
+const deliveryMonto = ref(null)
 const tycCopiado = ref(false)
 const sessionIdGenerado = ref('')
 const pollingTerminos = ref(false)
@@ -828,7 +845,8 @@ async function generarTerminos() {
     
     const data = await apiClient.post(API_CONFIG.ENDPOINTS.CONTACT_CENTER_SESSION, {
       sessionId,
-      conversationId: sessionId
+      conversationId: sessionId,
+      delivery: deliveryMonto.value
     })
 
     datosTerminos.value = data
@@ -1038,6 +1056,7 @@ function resetearFormulario() {
   clienteNoEncontrado.value = false
   datosSIISA.value = null
   datosTerminos.value = null
+  deliveryMonto.value = null
   estadoTerminos.value = null
   sessionIdGenerado.value = ''
   datosJaula.value = null
