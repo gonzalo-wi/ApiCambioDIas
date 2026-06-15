@@ -288,12 +288,12 @@ app.get('/api/consultar-token-fc', async (req, res) => {
 // Generar sesión de términos y condiciones
 app.post('/api/contact-center/session', async (req, res) => {
   try {
-    const { sessionId, conversationId } = req.body
-    console.log('📋 Generando sesión T&C:', { sessionId, conversationId })
+    const { sessionId, conversationId, delivery } = req.body
+    console.log('📋 Generando sesión T&C:', { sessionId, conversationId, delivery })
 
     const result = await axios.post(
       `${DISPENSER_OPS_BASE}/dispenser-operations/api/v1/contact-center/session`,
-      { sessionId, conversationId },
+      { sessionId, conversationId, delivery },
       {
         headers: { 'Content-Type': 'application/json' },
         timeout: 10000
