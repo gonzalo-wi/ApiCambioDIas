@@ -230,7 +230,7 @@
               </svg>
               <div>
                 <h4>Cliente Requiere Revisión</h4>
-                <p>El semáforo está en {{ colorSemaforo }} o scoring bajo. El cliente será derivado a revisión manual.</p>
+                <p>El semáforo está en ROJO. El cliente será derivado a revisión manual.</p>
               </div>
             </div>
 
@@ -238,7 +238,10 @@
               <button v-if="requiereRevision" @click="enviarARevision" class="btn btn-warning">
                 Enviar a Revisión
               </button>
-              <button v-else @click="continuarPaso3" class="btn btn-primary">
+              <button v-if="requiereRevision" @click="continuarPaso3" class="btn btn-secondary">
+                Continuar igual
+              </button>
+              <button v-if="!requiereRevision" @click="continuarPaso3" class="btn btn-primary">
                 Continuar al Paso 3
               </button>
               <button v-if="!requiereRevision" @click="continuarPaso3SinTerminos" class="btn btn-secondary">
@@ -765,14 +768,7 @@ const semaforoEstilo = computed(() => {
 })
 
 const requiereRevision = computed(() => {
-  const color = colorSemaforo.value
-  if (color === 'ROJO') return true
-  if (color === 'AMARILLO') {
-    // Scoring bajo: situación >= 3
-    const situacion = datosSIISA.value?.semaforo?.situacion_maxima_bcra
-    return situacion && situacion >= 3
-  }
-  return false
+  return colorSemaforo.value === 'ROJO'
 })
 
 async function consultarSIISA() {
