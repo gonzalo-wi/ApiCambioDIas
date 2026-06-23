@@ -130,6 +130,33 @@
           </div>
         </transition>
 
+        <!-- Múltiples cuentas: selector -->
+        <transition name="slide-up">
+          <div v-if="listaClientes.length > 0" class="result-card info">
+            <div class="result-header">
+              <svg class="result-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/>
+              </svg>
+              <h3>{{ listaClientes.length }} cuentas encontradas — Seleccioná la que corresponde</h3>
+            </div>
+            <div class="clientes-lista">
+              <button
+                v-for="cliente in listaClientes"
+                :key="cliente.codCliente"
+                class="cliente-item"
+                @click="seleccionarCliente(cliente)"
+              >
+                <div class="cliente-item-header">
+                  <span class="cliente-cod">Cta. {{ cliente.codCliente }}</span>
+                  <span class="cliente-reparto">Reparto {{ cliente.idReparto }}</span>
+                </div>
+                <div class="cliente-item-dir">{{ cliente.direccion }}, {{ cliente.localidad }}</div>
+                <div class="cliente-item-visita">{{ cliente.nombreDiaVisita }} · Próx. visita: {{ cliente.fechaProxVisita }}</div>
+              </button>
+            </div>
+          </div>
+        </transition>
+
         <transition name="slide-up">
           <div v-if="clienteNoEncontrado" class="result-card warning">
             <div class="result-header">
@@ -717,17 +744,23 @@ function validarTotal() {
 const cargandoPaso1 = ref(false)
 const errorPaso1 = ref('')
 const datosCliente = ref(null)
+const listaClientes = ref([])
 const clienteNoEncontrado = ref(false)
 
 async function buscarCliente() {
   cargandoPaso1.value = true
   errorPaso1.value = ''
   datosCliente.value = null
+  listaClientes.value = []
   clienteNoEncontrado.value = false
 
   try {
-    const cliente = await consultarClientePorDNI(formulario.value.dni)
-    datosCliente.value = cliente
+    const clientes = await consultarClientePorDNI(formulario.value.dni)
+    if (clientes.length === 1) {
+      datosCliente.value = clientes[0]
+    } else {
+      listaClientes.value = clientes
+    }
   } catch (error) {
     console.error('Error buscando cliente:', error)
     if (error.message.includes('No se encontró')) {
@@ -740,8 +773,14 @@ async function buscarCliente() {
   }
 }
 
+function seleccionarCliente(cliente) {
+  datosCliente.value = cliente
+  listaClientes.value = []
+}
+
 function limpiarResultadoCliente() {
   datosCliente.value = null
+  listaClientes.value = []
   clienteNoEncontrado.value = false
   errorPaso1.value = ''
 }
@@ -1050,6 +1089,7 @@ function resetearFormulario() {
     idReparto: ''
   }
   datosCliente.value = null
+  listaClientes.value = []
   clienteNoEncontrado.value = false
   datosSIISA.value = null
   datosTerminos.value = null
@@ -2283,5 +2323,64 @@ function formatearFecha(fechaISO) {
 .slide-up-leave-to {
   opacity: 0;
   transform: translateY(-20px);
+}
+
+/* Selector de múltiples cuentas */
+.clientes-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+.cliente-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.875rem 1rem;
+  border: 1.5px solid #bfdbfe;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.cliente-item:hover {
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+
+.cliente-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cliente-cod {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #1e40af;
+}
+
+.cliente-reparto {
+  font-size: 0.8rem;
+  color: #6b7280;
+  background: #e5e7eb;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+}
+
+.cliente-item-dir {
+  font-size: 0.9rem;
+  color: #111827;
+  font-weight: 500;
+}
+
+.cliente-item-visita {
+  font-size: 0.8rem;
+  color: #6b7280;
 }
 </style>

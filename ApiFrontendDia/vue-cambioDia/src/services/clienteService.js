@@ -85,18 +85,15 @@ export async function consultarClientePorDNI(dni, retry = true) {
       throw new Error('No se encontró cliente con ese DNI')
     }
 
-    // Extraer y filtrar campos necesarios
-    const clienteCompleto = response.data.data[0]
-    
-    return {
-      codCliente: clienteCompleto.codCliente,
-      nombre: clienteCompleto.nombre,
-      direccion: clienteCompleto.direccion,
-      localidad: clienteCompleto.localidad,
-      idReparto: clienteCompleto.idReparto,
-      nombreDiaVisita: clienteCompleto.nombreDiaVisita,
-      fechaProxVisita: clienteCompleto.fechaProxVisita
-    }
+    return response.data.data.map(c => ({
+      codCliente: c.codCliente,
+      nombre: c.nombre,
+      direccion: c.direccion,
+      localidad: c.localidad,
+      idReparto: c.idReparto,
+      nombreDiaVisita: c.nombreDiaVisita,
+      fechaProxVisita: c.fechaProxVisita
+    }))
   } catch (error) {
     console.error('❌ Error consultando cliente:', error)
     
