@@ -122,6 +122,58 @@ export async function consultarClientePorDNI(dni, retry = true) {
 }
 
 /**
+ * Consulta un cliente por número de cuenta (codCliente)
+ */
+export async function consultarClientePorCodigo(nroCta, retry = true) {
+  try {
+    const token = await getToken()
+    console.log('🔍 Consultando cliente Nro. Cuenta:', nroCta)
+
+    const response = await axios.get(`${BASE_URL_JMAP}/jmap2/client`, {
+      params: { nrocta: nroCta },
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+
+    console.log('📊 Respuesta cliente por cuenta:', response.data)
+
+    if (!response.data.success || !response.data.data || response.data.data.length === 0) {
+      throw new Error('No se encontró cliente con ese número de cuenta')
+    }
+
+    return response.data.data.map(c => ({
+      codCliente: c.codCliente,
+      nombre: c.nombre,
+      direccion: c.direccion,
+      localidad: c.localidad,
+      idReparto: c.idReparto,
+      nombreDiaVisita: c.nombreDiaVisita,
+      fechaProxVisita: c.fechaProxVisita
+    }))
+  } catch (error) {
+    console.error('❌ Error consultando cliente por cuenta:', error)
+
+    if (error.response?.status === 401 && retry) {
+      invalidarToken()
+      return consultarClientePorCodigo(nroCta, false)
+    }
+
+    if (error.response) {
+      const status = error.response.status
+      if (status === 401) throw new Error('Token de autenticación inválido')
+      if (status === 404) throw new Error('No se encontró cliente con ese número de cuenta')
+      throw new Error(`Error del servidor: ${status}`)
+    } else if (error.request) {
+      throw new Error('No se pudo conectar con el servidor')
+    } else {
+      throw error
+    }
+  }
+}
+
+/**
  * Invalida el token cacheado (útil si hay error 401)
  */
 export function invalidarToken() {
@@ -131,5 +183,6 @@ export function invalidarToken() {
 
 export default {
   consultarClientePorDNI,
+  consultarClientePorCodigo,
   invalidarToken
 }

@@ -57,18 +57,24 @@
           </div>
 
           <div class="form-group">
-            <label class="label">
-              <svg class="label-icon" viewBox="0 -960 960 960" fill="currentColor">
-                <path d="M560-440h200v-80H560v80Zm0-120h200v-80H560v80ZM200-320h320v-22q0-45-44-71.5T360-440q-72 0-116 26.5T200-342v22Zm160-160q33 0 56.5-23.5T440-560q0-33-23.5-56.5T360-640q-33 0-56.5 23.5T280-560q0 33 23.5 56.5T360-480ZM160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720v480q0 33-23.5 56.5T800-160H160Zm0-80h640v-480H160v480Zm0 0v-480 480Z"/>
-              </svg>
-              DNI / CUIT
-            </label>
+            <div class="modo-busqueda-toggle">
+              <button
+                type="button"
+                :class="['modo-btn', { active: modoBusqueda === 'dni' }]"
+                @click="cambiarModoBusqueda('dni')"
+              >DNI / CUIT</button>
+              <button
+                type="button"
+                :class="['modo-btn', { active: modoBusqueda === 'cuenta' }]"
+                @click="cambiarModoBusqueda('cuenta')"
+              >Nro. Cuenta</button>
+            </div>
             <input
               v-model="formulario.dni"
               type="text"
               class="input"
-              placeholder="DNI: 12345678 | CUIT: 30-70938201-9"
-              maxlength="13"
+              :placeholder="modoBusqueda === 'dni' ? 'DNI: 12345678 | CUIT: 30-70938201-9' : 'Ej: 349689'"
+              :maxlength="modoBusqueda === 'dni' ? 13 : 10"
               :disabled="cargandoPaso1"
               @input="limpiarResultadoCliente"
             />
@@ -200,6 +206,21 @@
         </div>
 
         <form @submit.prevent="consultarSIISA" class="form">
+          <div v-if="modoBusqueda === 'cuenta'" class="form-group">
+            <label class="label">
+              <span class="material-symbols-outlined label-icon-mat">badge</span>
+              CUIT del cliente
+            </label>
+            <input
+              v-model="cuitSiisa"
+              type="text"
+              class="input"
+              placeholder="Ej: 30-70938201-9"
+              maxlength="13"
+              :disabled="cargandoPaso2"
+            />
+          </div>
+
           <div class="form-group">
             <label class="label">
               <svg class="label-icon" viewBox="0 -960 960 960" fill="currentColor">
@@ -217,7 +238,7 @@
           <button
             type="submit"
             class="btn btn-primary"
-            :disabled="cargandoPaso2 || !formulario.sexo"
+            :disabled="cargandoPaso2 || !formulario.sexo || (modoBusqueda === 'cuenta' && !cuitSiisa.trim())"
           >
             <svg v-if="!cargandoPaso2" class="btn-icon" viewBox="0 -960 960 960" fill="currentColor">
               <path d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z"/>
@@ -693,7 +714,7 @@
 
 <script setup>
 import { ref, computed, onUnmounted } from 'vue'
-import { consultarClientePorDNI } from '../services/clienteService'
+import { consultarClientePorDNI, consultarClientePorCodigo } from '../services/clienteService'
 import { SiisaService } from '../services/siisaService'
 import { consultarDisponibilidadJaula, agendarVisita } from '../services/jaulaService'
 import { apiClient } from '../services/api.client'
@@ -746,6 +767,7 @@ const errorPaso1 = ref('')
 const datosCliente = ref(null)
 const listaClientes = ref([])
 const clienteNoEncontrado = ref(false)
+const modoBusqueda = ref('dni') // 'dni' | 'cuenta'
 
 async function buscarCliente() {
   cargandoPaso1.value = true
@@ -755,7 +777,10 @@ async function buscarCliente() {
   clienteNoEncontrado.value = false
 
   try {
-    const clientes = await consultarClientePorDNI(formulario.value.dni)
+    const clientes = modoBusqueda.value === 'cuenta'
+      ? await consultarClientePorCodigo(formulario.value.dni)
+      : await consultarClientePorDNI(formulario.value.dni)
+
     if (clientes.length === 1) {
       datosCliente.value = clientes[0]
     } else {
@@ -778,6 +803,12 @@ function seleccionarCliente(cliente) {
   listaClientes.value = []
 }
 
+function cambiarModoBusqueda(modo) {
+  modoBusqueda.value = modo
+  formulario.value.dni = ''
+  limpiarResultadoCliente()
+}
+
 function limpiarResultadoCliente() {
   datosCliente.value = null
   listaClientes.value = []
@@ -797,6 +828,7 @@ function continuarPaso2SinCliente() {
 const cargandoPaso2 = ref(false)
 const errorPaso2 = ref('')
 const datosSIISA = ref(null)
+const cuitSiisa = ref('')
 
 const colorSemaforo = computed(() => {
   return datosSIISA.value?.semaforo?.color?.toUpperCase() || 'ROJO'
@@ -816,9 +848,11 @@ async function consultarSIISA() {
   datosSIISA.value = null
 
   try {
-    const dniSinGuiones = formulario.value.dni.replace(/-/g, '')
+    const docParaSiisa = modoBusqueda.value === 'cuenta'
+      ? cuitSiisa.value.replace(/-/g, '')
+      : formulario.value.dni.replace(/-/g, '')
     const respuesta = await SiisaService.consultarPersona(
-      dniSinGuiones,
+      docParaSiisa,
       formulario.value.sexo
     )
     datosSIISA.value = respuesta.datos_completos
@@ -847,6 +881,7 @@ function continuarPaso3SinTerminos() {
 function volverPaso1() {
   pasoActual.value = 1
   datosSIISA.value = null
+  cuitSiisa.value = ''
   errorPaso2.value = ''
 }
 
@@ -1092,6 +1127,7 @@ function resetearFormulario() {
   listaClientes.value = []
   clienteNoEncontrado.value = false
   datosSIISA.value = null
+  cuitSiisa.value = ''
   datosTerminos.value = null
   deliveryMonto.value = null
   estadoTerminos.value = null
@@ -2323,6 +2359,36 @@ function formatearFecha(fechaISO) {
 .slide-up-leave-to {
   opacity: 0;
   transform: translateY(-20px);
+}
+
+/* Toggle modo búsqueda */
+.modo-busqueda-toggle {
+  display: flex;
+  border: 1.5px solid #d1d5db;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.modo-btn {
+  flex: 1;
+  padding: 0.5rem 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: none;
+  background: #f9fafb;
+  color: #6b7280;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.modo-btn:first-child {
+  border-right: 1.5px solid #d1d5db;
+}
+
+.modo-btn.active {
+  background: #3b82f6;
+  color: #fff;
 }
 
 /* Selector de múltiples cuentas */
