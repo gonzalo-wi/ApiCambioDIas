@@ -441,7 +441,7 @@
               </svg>
               Tipo y Cantidad de Dispensers
             </label>
-            <p class="help-text">Seleccione la cantidad de cada tipo (máximo 3 en total)</p>
+            <p class="help-text">Ingrese la cantidad de cada tipo</p>
           </div>
 
           <div class="dispenser-grid">
@@ -452,12 +452,7 @@
                 </svg>
                 Pie (P)
               </label>
-              <select v-model.number="formulario.cantidadPie" class="input" @change="validarTotal">
-                <option :value="0">0</option>
-                <option :value="1">1</option>
-                <option :value="2">2</option>
-                <option :value="3">3</option>
-              </select>
+              <input v-model.number="formulario.cantidadPie" type="number" class="input" min="0" placeholder="0" />
             </div>
 
             <div class="form-group">
@@ -467,23 +462,11 @@
                 </svg>
                 Mesada (M)
               </label>
-              <select v-model.number="formulario.cantidadMesada" class="input" @change="validarTotal">
-                <option :value="0">0</option>
-                <option :value="1">1</option>
-                <option :value="2">2</option>
-                <option :value="3">3</option>
-              </select>
+              <input v-model.number="formulario.cantidadMesada" type="number" class="input" min="0" placeholder="0" />
             </div>
           </div>
 
-          <div v-if="totalDispensers > 3" class="alert-error">
-            <svg class="alert-icon" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-            </svg>
-            <p>El total no puede superar 3 dispensers. Total actual: {{ totalDispensers }}</p>
-          </div>
-
-          <div v-else-if="totalDispensers > 0" class="info-box">
+          <div v-if="totalDispensers > 0" class="info-box">
             <strong>Total:</strong> {{ totalDispensers }} dispenser(s) seleccionado(s)
           </div>
 
@@ -747,19 +730,6 @@ const formulario = ref({
 const totalDispensers = computed(() => {
   return formulario.value.cantidadPie + formulario.value.cantidadMesada
 })
-
-// Validar que el total no supere 3
-function validarTotal() {
-  if (totalDispensers.value > 3) {
-    // Si supera 3, ajustar automáticamente
-    const exceso = totalDispensers.value - 3
-    if (formulario.value.cantidadMesada >= exceso) {
-      formulario.value.cantidadMesada -= exceso
-    } else {
-      formulario.value.cantidadPie -= exceso
-    }
-  }
-}
 
 // Paso 1: Cliente
 const cargandoPaso1 = ref(false)
