@@ -489,7 +489,7 @@
             <button
               type="submit"
               class="btn btn-primary"
-              :disabled="totalDispensers === 0 || totalDispensers > 3 || !formulario.email"
+              :disabled="totalDispensers === 0 || !formulario.email"
             >
               Continuar al Paso 5
             </button>
